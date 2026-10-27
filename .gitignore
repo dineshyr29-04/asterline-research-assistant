@@ -1,0 +1,15 @@
+.venv/
+.uv-cache/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+runtime/
+*.sqlite*
+*.db
+tmp/
+dist/
+*.egg-info/
