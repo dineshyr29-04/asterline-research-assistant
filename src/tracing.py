@@ -22,7 +22,6 @@ def user_tag(user_id):
 class Tracer:
     def __init__(self, enabled=False):
         self.enabled = enabled and bool(os.getenv("LANGSMITH_API_KEY"))
-        self.last_error = None
 
     @contextmanager
     def span(self, name, inputs, metadata=None):

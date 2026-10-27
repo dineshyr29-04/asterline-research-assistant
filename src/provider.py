@@ -11,6 +11,8 @@ class ProviderError(RuntimeError):
 
 
 def parse_json(content):
+    if not isinstance(content, str):
+        raise ProviderError("The model returned non-text content. Retry or choose a compatible model.")
     value = content.strip()
     if value.startswith("```"):
         value = value.split("\n", 1)[-1].rsplit("```", 1)[0]

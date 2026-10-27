@@ -90,6 +90,10 @@ class MemoryStore:
         for key, value in updates.items():
             if key not in MEMORY_KEYS or not isinstance(value, str) or not value.strip() or not safe_memory(value):
                 raise ValueError("Only non-sensitive workspace context and preferences can be remembered")
+            if key == "workspace_plan" and value.strip() not in {"Launch", "Team", "Enterprise"}:
+                raise ValueError("Workspace plan must be Launch, Team or Enterprise")
+            if key == "project_region" and value.strip() not in {"US", "EU"}:
+                raise ValueError("Project region must be US or EU")
         with self.connection() as db:
             old = {r[0]: r[1] for r in db.execute("SELECT key,value FROM memories WHERE user_id=?", (user_id,))}
             # A correction invalidates past context, including in separate sessions.

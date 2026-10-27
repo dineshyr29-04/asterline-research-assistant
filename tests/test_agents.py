@@ -101,3 +101,29 @@ def test_exact_quote_validation_rejects_wrong_evidence():
     draft = copy.deepcopy(DRAFT)
     draft["claims"][0]["sources"][0]["quote"] = "The stipend is $999 per week."
     assert "verbatim" in validate_draft(draft, [SOURCE])[0]
+
+
+class MemoryFixtureProvider(FixtureProvider):
+    def complete(self, role, system, payload):
+        if role == "memory":
+            self.calls.append((role, payload))
+            return {"search_query": "Current stipend?", "updates": [
+                {"key": "workspace_plan", "value": "Team", "quote": "My workspace uses Team"},
+                {"key": "api_key", "value": "not-allowed", "quote": "My workspace uses Team"},
+                {"key": "work_goal", "value": "Invented memory", "quote": "not in the message"}],
+                "reason": "Synthetic memory proposal"}
+        return super().complete(role, system, payload)
+
+
+@pytest.mark.parametrize("remember,reject,expected", [(True, False, "Team"), (False, False, None), (True, True, None)])
+def test_automatic_memory_requires_current_evidence_consent_and_verified_answer(tmp_path, remember, reject, expected):
+    store = MemoryStore(tmp_path / "memory.sqlite3")
+    session = store.new_session("alice")
+    provider = MemoryFixtureProvider(reject=reject)
+    assistant = Assistant(store, FixtureRetriever(), provider)
+    assistant.ask("alice", session, "My workspace uses Team. What is the stipend?", remember=remember)
+    memories = store.memories("alice")
+    if expected is None:
+        assert memories == []
+    else:
+        assert [(m["key"], m["value"]) for m in memories] == [("workspace_plan", expected)]

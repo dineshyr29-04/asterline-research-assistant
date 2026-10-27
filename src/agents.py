@@ -171,6 +171,12 @@ class Assistant:
                           "This message was not sent to a model, traced or saved.", status="blocked")
         command = self._command(user_id, question)
         if command:
+            # Export decisions only; never re-upload forgotten context or memory values.
+            with self.tracer.span("asterline.memory_control", {"operation": question.split()[0].lower()},
+                                  {"user": user_tag(user_id)}) as span:
+                span.outputs = {"status": command.status, "saved_keys": list(command.saved_memory),
+                                "remaining_keys": [r["key"] for r in self.store.memories(user_id)]}
+                command.trace_id = span.trace_id
             return command
         memories = {r["key"]: r["value"] for r in self.store.memories(user_id)}
         decisions = []

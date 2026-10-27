@@ -62,6 +62,7 @@ def test_forget_clears_all_old_context_but_not_other_users(store):
     ("api_key", "anything"), ("work_goal", "api_key=secret123"),
     ("work_goal", "My medical diagnosis"), ("project_name", "person@example.org"),
     ("workspace_plan", "sk-1234567890abcdefghijk"),
+    ("workspace_plan", "Premium"), ("project_region", "APAC"),
 ])
 def test_refuse_sensitive_or_unapproved_memory(store, key, value):
     with pytest.raises(ValueError):
