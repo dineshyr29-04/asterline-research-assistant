@@ -13,6 +13,20 @@ def tokens(text):
     return [t for t in re.findall(r"[a-z0-9]+", text.lower()) if t not in STOP]
 
 
+def query_facets(query):
+    """Split explicit comparisons and separate questions without company-specific rules."""
+    clauses = re.split(r"(?<=[.?])\s+(?=[A-Z])", query)
+    result = []
+    for clause in clauses:
+        comparison = bool(re.search(r"\bcompar\w*\b|\bversus\b|\bvs\b", clause, re.I))
+        if comparison:
+            parts = re.split(r"\s+(?:with|versus|vs\.?)\s+", clause, flags=re.I)
+        else:
+            parts = [clause]
+        result.extend(p.strip() for p in parts if len(tokens(p)) >= (2 if comparison else 3))
+    return result[:4] if len(result) > 1 else []
+
+
 def load_corpus(path):
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != CORPUS_SHA256:
@@ -68,20 +82,39 @@ class Retriever:
         if not query.strip():
             return []
         mode = mode or self.mode
-        if mode not in {"dense", "hybrid"}:
-            raise ValueError("Retrieval mode must be dense or hybrid")
+        if mode not in {"dense", "fusion", "hybrid"}:
+            raise ValueError("Retrieval mode must be dense, fusion or hybrid")
         vector = next(iter(self.encoder.query_embed(query))).tolist()
         dense = self.collection.query(query_embeddings=[vector], n_results=len(self.records), include=["distances"])
         dense_ids = dense["ids"][0]
         distances = dict(zip(dense_ids, dense["distances"][0]))
         ranked = dense_ids
-        if mode == "hybrid":
+        if mode in {"fusion", "hybrid"}:
             # Reciprocal rank fusion keeps numerical BM25 and cosine scales separate.
             scores = Counter()
             for ranking in (dense_ids, self.lexical_rank(query)):
                 for rank, cid in enumerate(ranking, 1):
                     scores[cid] += 1 / (20 + rank)
             ranked = sorted(scores, key=lambda cid: (-scores[cid], cid))
+        if mode == "hybrid":
+            facets = query_facets(query)
+            if facets:
+                # Preserve top full-question evidence, then cover each explicit question facet.
+                selected = ranked[:2]
+                for facet in facets:
+                    for record in self.search(facet, limit=2, mode="fusion"):
+                        if record["chunk_id"] not in selected:
+                            selected.append(record["chunk_id"])
+                ranked = list(dict.fromkeys(selected + ranked))
+                # Comparison questions need breadth: three near-duplicate chunks from one
+                # document must not displace a different document's applicable limit.
+                counts = Counter()
+                diverse, overflow = [], []
+                for cid in ranked:
+                    doc = self.by_id[cid]["doc_id"]
+                    (diverse if counts[doc] < 2 else overflow).append(cid)
+                    counts[doc] += 1
+                ranked = diverse + overflow
         return [{**self.by_id[cid], "distance": round(distances[cid], 5)} for cid in ranked[:limit]]
 
     def expand_scope(self, evidence, max_chunks=14):
