@@ -2,7 +2,9 @@
 
 ## Current status
 
-Implementation, local retrieval evaluation and deterministic verification are present. Generation and LangSmith credentials were intentionally left for the candidate to configure. **Live model evaluation and remotely accessible runs are pending. No trace links below have been fabricated.**
+Implementation, local retrieval evaluation and deterministic verification are present. The candidate has now configured credentials. A synthetic connection check succeeded with Groq `openai/gpt-oss-120b`, and its LangSmith trace was uploaded and read back through the API. Results are recorded in `evaluation/connection-check.json`.
+
+**Full live research/memory evaluation and reviewer access remain pending.** A connection-check run demonstrates connectivity, not the three-agent application's answer quality.
 
 ## Complete after configuring credentials
 
@@ -15,7 +17,8 @@ Implementation, local retrieval evaluation and deterministic verification are pr
 
 | Required evidence | Actual accessible URL | What reviewer should inspect |
 |---|---|---|
-| LangSmith project | Pending credentials | Project access and all representative runs |
+| LangSmith project | [Configured project](https://smith.langchain.com/o/50f0f811-ae6c-434f-90b1-987936ceff44/projects/p/663fc501-699d-4534-b740-95fdc40b29e7) | Upload/read confirmed for owner; reviewer access still needs confirmation |
+| Synthetic connection check | [Verified uploaded run](https://smith.langchain.com/o/50f0f811-ae6c-434f-90b1-987936ceff44/projects/p/663fc501-699d-4534-b740-95fdc40b29e7/r/73a0274a-6e90-44e6-b27e-df45d319f315) | Groq returned valid JSON; this is not a representative research answer |
 | Supported answer | Pending live run | Known chunk IDs, exact quotes, independent review |
 | Temporal conflict | Pending live run | Effective date/scope and explicit supersession |
 | Cross-session memory | Pending live run | Alice context retained after restart |

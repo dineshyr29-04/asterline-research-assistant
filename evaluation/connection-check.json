@@ -1,0 +1,10 @@
+{
+  "provider": "openai",
+  "model": "openai/gpt-oss-120b",
+  "tracing_enabled": true,
+  "generation_ok": true,
+  "trace_readable": true,
+  "trace_id": "73a0274a-6e90-44e6-b27e-df45d319f315",
+  "run_url": "https://smith.langchain.com/o/50f0f811-ae6c-434f-90b1-987936ceff44/projects/p/663fc501-699d-4534-b740-95fdc40b29e7/r/73a0274a-6e90-44e6-b27e-df45d319f315?poll=true",
+  "project": "asterline-research-assistant"
+}
