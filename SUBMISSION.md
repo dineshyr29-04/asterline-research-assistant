@@ -4,14 +4,16 @@ Repository: https://github.com/dineshyr29-04/asterline-research-assistant
 
 ## Run locally
 
-Use Python 3.12. Install `requirements.lock.txt`, copy `.env.example` to `.env`, configure Groq (free tier) or local Ollama and LangSmith, then run `python launch.py`. See [README](README.md).
+Use Python 3.12. Install `requirements.lock.txt`, copy `.env.example` to `.env`, start Ollama and pull `llama3.1:8b` (default), or configure an optional OpenAI-compatible provider such as the evaluated Groq Free Plan. Configure LangSmith for remote traces, then run `python launch.py`. See [README](README.md).
 
 ## Included deliverables
 
 - [Design note and architecture diagram](docs/design.md).
+- [Code walkthrough for interview preparation](docs/code-walkthrough.md) and [requirement-to-file map](docs/requirements-checklist.md).
 - [Unchanged original corpus](data/corpus.jsonl), SHA-256 verified on every load.
 - [Research evaluation results](evaluation/live-results.json) and [memory conversation results](evaluation/live-memory-results.json).
 - [Failure analysis and measured retrieval improvement](evaluation/analysis.md).
+- Explicitly named measured [baseline.json](evaluation/baseline.json) and [improved.json](evaluation/improved.json).
 - [AI-use disclosure](docs/ai-use.md) and [walkthrough](docs/demo.md).
 
 ## Actual evaluation results

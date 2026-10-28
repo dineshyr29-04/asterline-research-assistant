@@ -70,6 +70,10 @@ The final actual-provider memory sequence passes 6/6 checks: automatic context, 
 
 Public representative runs, including before-fix failures, are linked from the submission index after unauthenticated access checks. The account's one-seat free tier does not provide whole-project membership to an additional reviewer; public individual traces are the supplied review mechanism.
 
+## Readability update verification
+
+`baseline.json` and `improved.json` now expose the measured local retrieval runs directly under the requested names; the evaluator regenerates them rather than maintaining hand-copied scores. The compact workflow has named context, retrieval, research/review and formatting steps. One post-change actual Groq question is recorded separately in `readability-smoke.json` to check the refactored flow and `[chunk_id | title]` presentation. Earlier full model evaluations remain as originally recorded. Ollama is the new-install default; existing compatible-provider variables remain supported. Ollama protocol tests are mocked, and no live local-model score is claimed.
+
 ## Reproduce and extend
 
 ```text
