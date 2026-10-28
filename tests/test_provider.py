@@ -16,7 +16,7 @@ def test_rate_limit_respects_bounded_retry_after():
 
     provider = GenerationProvider(Settings(api_key="synthetic-test-key"), httpx.MockTransport(handler), sleeps.append)
     assert provider.complete("test", "JSON only", {}) == {"ok": True}
-    assert len(attempts) == 2 and sleeps == [10]
+    assert len(attempts) == 2 and sleeps == [60]
 
 
 def test_exhausted_provider_does_not_expose_response_body():
@@ -57,3 +57,17 @@ def test_ollama_json_protocol():
 
     provider = GenerationProvider(Settings(provider="ollama", base_url="http://localhost:11434"), httpx.MockTransport(handler))
     assert provider.complete("test", "JSON", {}) == {"ok": True}
+
+
+def test_disconnected_provider_is_retried_and_returns_safe_error():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.RemoteProtocolError("Synthetic upstream disconnect")
+
+    provider = GenerationProvider(Settings(api_key="synthetic-test-key", retries=1),
+                                  httpx.MockTransport(handler), lambda _: None)
+    with pytest.raises(ProviderError, match="unreachable"):
+        provider.complete("test", "JSON", {})
+    assert len(calls) == 2

@@ -127,3 +127,15 @@ def test_automatic_memory_requires_current_evidence_consent_and_verified_answer(
         assert memories == []
     else:
         assert [(m["key"], m["value"]) for m in memories] == [("workspace_plan", expected)]
+
+
+def test_memory_agent_cannot_replace_question_with_schema_placeholder():
+    from src.agents import MemoryAgent
+
+    class PlaceholderProvider:
+        def complete(self, *args):
+            return {"search_query": "standalone company research question", "updates": [], "reason": "copied template"}
+
+    question = "What is the current weekly on-call stipend?"
+    query, updates, reason = MemoryAgent(PlaceholderProvider()).plan(question, {}, [], False)
+    assert query == question and updates == {} and "Rejected" in reason

@@ -22,6 +22,7 @@ def user_tag(user_id):
 class Tracer:
     def __init__(self, enabled=False):
         self.enabled = enabled and bool(os.getenv("LANGSMITH_API_KEY"))
+        self.last_trace_id = None
 
     @contextmanager
     def span(self, name, inputs, metadata=None):
@@ -37,5 +38,6 @@ class Tracer:
                        project_name=os.getenv("LANGSMITH_PROJECT", "asterline-research-assistant")) as run:
                 result.run_id = str(run.id)
                 result.trace_id = str(run.trace_id)
+                self.last_trace_id = result.trace_id
                 yield result
                 run.end(outputs=clean(result.outputs))

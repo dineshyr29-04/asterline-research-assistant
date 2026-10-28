@@ -31,7 +31,9 @@ def run(settings, retriever):
                              "answer": result.answer, "trace_id": result.trace_id,
                              "memory": store.memories(user)})
             except (ProviderError, ValueError) as exc:
-                rows.append({"id": case_id, "passed": False, "status": "error", "error": str(exc)})
+                rows.append({"id": case_id, "passed": False, "status": "error", "error": str(exc),
+                             "trace_id": assistant.tracer.last_trace_id})
+            print(f"Live memory: {case_id} -> {rows[-1]['status']} (pass={rows[-1]['passed']})", flush=True)
 
         def memory_is(user, key, value):
             return any(r["key"] == key and r["value"] == value for r in store.memories(user))

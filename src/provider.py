@@ -57,7 +57,7 @@ class GenerationProvider:
             for attempt in range(s.retries + 1):
                 try:
                     response = client.post(url, json=body, headers=headers)
-                except (httpx.TimeoutException, httpx.NetworkError) as exc:
+                except httpx.TransportError as exc:
                     if attempt == s.retries:
                         raise ProviderError("Model provider timed out or is unreachable. No answer was saved.") from exc
                     self.sleeper(min(2 ** attempt, 8))
@@ -66,10 +66,10 @@ class GenerationProvider:
                     if attempt == s.retries:
                         raise ProviderError("Model provider is rate-limited or unavailable. Try again shortly.")
                     try:
-                        delay = float(response.headers.get("Retry-After", 2 ** attempt))
+                        delay = float(response.headers.get("Retry-After", 20 if response.status_code == 429 else 2 ** attempt))
                     except ValueError:
                         delay = 2 ** attempt
-                    self.sleeper(min(10, max(0, delay)))
+                    self.sleeper(min(60, max(0, delay)))
                     continue
                 if response.status_code >= 400:
                     raise ProviderError(f"Model request failed (HTTP {response.status_code}). Check provider settings.")

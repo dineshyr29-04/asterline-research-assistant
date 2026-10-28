@@ -39,12 +39,16 @@ def retrieval_metrics(retriever, cases, mode, k):
     return {"mode": mode, "k": k, "summary": summaries, "cases": rows}
 
 
-def live_metrics(retriever, cases, settings):
-    rows = []
+def live_metrics(retriever, cases, settings, checkpoint=None, previous=None):
+    rows = list(previous or [])
+    completed = {r["id"] for r in rows if r["status"] != "error"}
+    rows = [r for r in rows if r["id"] in completed]
     with tempfile.TemporaryDirectory(prefix="asterline-eval-") as temp:
         store = MemoryStore(Path(temp) / "eval.sqlite3")
         assistant = Assistant(store, retriever, GenerationProvider(settings), Tracer(settings.tracing))
         for case in cases:
+            if case["id"] in completed:
+                continue
             user = "synthetic-evaluator-" + case["id"]
             session = store.new_session(user)
             started = time.monotonic()
@@ -57,7 +61,15 @@ def live_metrics(retriever, cases, settings):
                              "citation_ids_valid": cited.issubset(retriever.by_id),
                              "trace_id": result.trace_id, "seconds": round(time.monotonic() - started, 2)})
             except (ProviderError, ValueError) as exc:
-                rows.append({"id": case["id"], "status": "error", "error": str(exc)})
+                rows.append({"id": case["id"], "status": "error", "error": str(exc),
+                             "trace_id": assistant.tracer.last_trace_id})
+            print(f"Live research {len(rows)}/{len(cases)}: {case['id']} -> {rows[-1]['status']}", flush=True)
+            if checkpoint:
+                checkpoint(generation_report(rows, settings))
+    return generation_report(rows, settings)
+
+
+def generation_report(rows, settings):
     return {"label": "Actual generation; regex checks are limited proxies, manually review answers",
             "model": settings.model, "provider": settings.provider,
             "summary": {"cases": len(rows), "provider_errors": sum(r["status"] == "error" for r in rows),
@@ -69,10 +81,12 @@ def live_metrics(retriever, cases, settings):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--resume", action="store_true", help="Keep completed cases; retry provider errors from the output file")
     parser.add_argument("--limit", type=int, default=0, help="Optional live-case limit for provider cost control")
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--output", type=Path, default=ROOT / "evaluation/results.json")
     args = parser.parse_args()
+    previous = json.loads(args.output.read_text(encoding="utf-8")) if args.resume and args.output.exists() else {}
     settings = Settings.from_env()
     cases_path = ROOT / "evaluation/cases.json"
     cases = json.loads(cases_path.read_text())
@@ -85,7 +99,12 @@ def main():
     if args.live:
         if settings.provider_problem():
             parser.error(settings.provider_problem())
-        result["generation"] = live_metrics(retriever, cases[:args.limit] if args.limit else cases, settings)
+        def checkpoint(generation):
+            result["generation"] = generation
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        result["generation"] = live_metrics(retriever, cases[:args.limit] if args.limit else cases, settings,
+                                            checkpoint, previous.get("generation", {}).get("cases"))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
     for name in ("baseline", "lexical_only_change", "improved"):
