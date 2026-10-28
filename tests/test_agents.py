@@ -147,3 +147,15 @@ def test_only_typographic_quote_changes_are_canonicalized():
     assert source_quote("cleanup script for pre\u2011existing duplicates.", text) == "cleanup script for pre-existing duplicates."
     assert source_quote("cleanup script for existing duplicates.", text) is None
     assert source_quote("cleanup script removed all duplicates.", text) is None
+
+
+def test_missing_private_plan_clarifies_without_provider_or_other_user_context(tmp_path):
+    app, alice, provider = make_assistant(tmp_path, fail=True)
+    app.store.save("alice", "workspace_plan", "Team")
+    bob = app.store.new_session("bob")
+    result = app.ask("bob", bob, "What workspace plan do I use?")
+    assert result.status == "abstained" and "Which plan" in result.answer
+    assert provider.calls == [] and app.store.memories("bob") == []
+    app.store.forget("alice")
+    result = app.ask("alice", alice, "How long does my plan retain records?")
+    assert result.status == "abstained" and provider.calls == []

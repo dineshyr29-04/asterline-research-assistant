@@ -38,6 +38,9 @@ does not override a specific policy. Explain relevant historical and current dif
 Distinguish searchable run retention, Explorer retention, cold storage and exported copies; distinguish plan,
 project and workspace limits. Do not extrapolate certifications, commercial promises or future release dates.
 If the evidence cannot answer, return empty claims and an honest uncertainty statement; ask for clarification when needed.
+When reporting a documentary negative finding, put it in a source-backed claim. The uncertainty field is only for
+limitations or clarification, not factual summaries of documents without citations. Do not infer absence across the
+whole corpus from a limited retrieved subset; say what the supplied evidence does or does not establish.
 If the user asks which plan/region/project they use and their context does not say, ask them; documentation cannot identify it.
 Never use previous answers or remembered statements as proof. Never invent citations. If REVIEW_FEEDBACK is given,
 correct the draft using the evidence, or abstain. Return JSON only.
@@ -219,6 +222,21 @@ class Assistant:
                 command.trace_id = span.trace_id
             return command
         memories = {r["key"]: r["value"] for r in self.store.memories(user_id)}
+        personal_plan = bool(re.search(r"\b(?:my|our)\s+(?:workspace\s+)?plan\b|\b(?:what|which)\s+(?:workspace\s+)?plan\b.*\b(?:i|we)\b",
+                                       question, re.I))
+        plan_hints = question + " " + " ".join(m["content"] for m in history if m["role"] == "user")
+        if personal_plan and not memories.get("workspace_plan") and not re.search(r"\b(?:Launch|Team|Enterprise)\b", plan_hints, re.I):
+            # Missing private context is a clarification, not a reason to ask a provider
+            # to guess identity from company documents or another user's information.
+            answer = "I don't have your workspace plan in this conversation or your saved context. " \
+                     "Which plan do you use: Launch, Team or Enterprise?"
+            with self.tracer.span("asterline.conversation", {"question": question},
+                                  {"user": user_tag(user_id), "session": session_id}) as root:
+                with self.tracer.span("agent.memory", {"memory_keys": list(memories)}) as span:
+                    span.outputs = {"decision": "clarify_missing_private_context", "required_key": "workspace_plan"}
+                root.outputs = {"status": "abstained", "answer": answer}
+                return Result(answer, decisions=[{"agent": "Memory", "decision": "clarify_missing_private_context"}],
+                              trace_id=root.trace_id, status="abstained")
         decisions = []
         with self.tracer.span("asterline.conversation", {"question": question},
                               {"user": user_tag(user_id), "session": session_id}) as root:

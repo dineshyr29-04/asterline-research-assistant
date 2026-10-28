@@ -19,6 +19,7 @@ from src.privacy import contains_secret
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--share", action="store_true", help="Explicitly publish synthetic evaluation runs")
+    parser.add_argument("--representative", action="store_true", help="Publish a focused set covering success, conflicts, memory and failure")
     args = parser.parse_args()
     settings = Settings.from_env()
     from langsmith import Client
@@ -41,6 +42,11 @@ def main():
             continue
         data = json.loads(path.read_text())
         for case in (data[section] if section else data)["cases"]:
+            if args.representative and suite == "research" and case["id"] not in {
+                "price-team", "cold-conflict", "stipend-conflict", "retention-types", "duplicate-cleanup", "hipaa-unknown"}:
+                continue
+            if args.representative and suite == "research-before-fix" and case["id"] not in {"cold-conflict", "stipend-conflict"}:
+                continue
             if suite == "research-before-fix" and case.get("expected_patterns_pass"):
                 continue
             trace_id = case.get("trace_id")
@@ -67,7 +73,8 @@ def main():
             row = {"suite": suite, "case": case["id"],
                    "status": case["status"], "trace_id": trace_id, "child_spans": len(runs) - 1}
             if args.share:
-                url = client.share_run(trace_id)
+                # Re-running this utility must reuse existing links, not fail with HTTP 409.
+                url = client.read_run_shared_link(trace_id) or client.share_run(trace_id)
                 token = re.search(r"/public/([a-f0-9-]+)", url).group(1)
                 endpoint = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com").rstrip("/")
                 # Intentionally no cookies, auth headers, or LangSmith client for this check.

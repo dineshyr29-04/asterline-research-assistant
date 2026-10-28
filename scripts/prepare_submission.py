@@ -35,6 +35,7 @@ Use Python 3.12. Install `requirements.lock.txt`, copy `.env.example` to `.env`,
 Generation model: `{research['model']}` via Groq's OpenAI-compatible endpoint.
 
 - Research: {research['summary']['cases']} actual questions; {passed} pass the authored answer-pattern checks; {research['summary']['provider_errors']} provider errors; {research['summary']['verification_failures']} verification failures. Pattern checks are proxies, not a claim of perfect semantic accuracy.
+- [Review of the three pattern misses](evaluation/manual-review.json): two scoring false alarms and one remaining incomplete numerical example are documented rather than hidden.
 - Memory: {memory['passed']}/{memory['total']} actual conversation checks passed (context, restart, correction, isolation, forgetting).
 - Retrieval: all expected passages found for 24/24 questions at eight chunks, compared with 23/24 for the dense baseline. MRR decreases; the trade-off is documented.
 - Tests: run `python -m pytest tests -q` for deterministic storage, privacy, provider, orchestration and UI checks.

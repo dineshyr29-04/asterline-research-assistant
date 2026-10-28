@@ -42,7 +42,8 @@ def retrieval_metrics(retriever, cases, mode, k):
 def live_metrics(retriever, cases, settings, checkpoint=None, previous=None):
     rows = list(previous or [])
     completed = {r["id"] for r in rows if r["status"] != "error"}
-    rows = [r for r in rows if r["id"] in completed]
+    selected_ids = {case["id"] for case in cases}
+    rows = [r for r in rows if r["id"] in completed or r["id"] not in selected_ids]
     with tempfile.TemporaryDirectory(prefix="asterline-eval-") as temp:
         store = MemoryStore(Path(temp) / "eval.sqlite3")
         assistant = Assistant(store, retriever, GenerationProvider(settings), Tracer(settings.tracing))
