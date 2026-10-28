@@ -79,6 +79,15 @@ def generation_report(rows, settings):
             "cases": rows}
 
 
+def write_comparison_artifacts(result, folder):
+    """Expose the two measured retrieval runs under the assignment's requested filenames."""
+    metadata = {key: result[key] for key in ("corpus_sha256", "cases_sha256", "embedding_model")}
+    for name in ("baseline", "improved"):
+        report = {"description": "Actual local retrieval benchmark; not generation accuracy",
+                  **metadata, **result[name]}
+        (folder / f"{name}.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true")
@@ -112,6 +121,7 @@ def main():
         result["generation"] = live_metrics(retriever, selected, settings, checkpoint, previous_rows)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
+    write_comparison_artifacts(result, args.output.parent)
     for name in ("baseline", "lexical_only_change", "improved"):
         print(name, json.dumps(result[name]["summary"]))
     print("Generation evaluated:", args.live)

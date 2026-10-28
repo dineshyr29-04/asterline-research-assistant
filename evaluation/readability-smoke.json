@@ -1,0 +1,1653 @@
+{
+  "corpus_sha256": "f63fc05cf43204485c98bd8fb6d89860a32c16a7e906bc90975e7c3954fe9fb1",
+  "cases_sha256": "ba8978aa19f01b832057953589b843c574a214e28a325b5dea8ad3f0c7f5fca6",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "generation_evaluated": true,
+  "baseline": {
+    "mode": "dense",
+    "k": 8,
+    "summary": {
+      "all": {
+        "cases": 24,
+        "mean_evidence_recall": 0.9861,
+        "all_evidence_rate": 0.9583,
+        "mrr": 0.9375
+      },
+      "development": {
+        "cases": 16,
+        "mean_evidence_recall": 0.9792,
+        "all_evidence_rate": 0.9375,
+        "mrr": 0.9062
+      },
+      "heldout": {
+        "cases": 8,
+        "mean_evidence_recall": 1.0,
+        "all_evidence_rate": 1.0,
+        "mrr": 1.0
+      }
+    },
+    "cases": [
+      {
+        "id": "price-team",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "sla:0",
+          "pricing:2",
+          "handbook:0",
+          "oncall:0",
+          "handbook:1",
+          "ingest:1"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "annual",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "pricing:2",
+          "sla:0",
+          "company:2",
+          "sla:2",
+          "sla:1",
+          "deploy:0"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "cold-conflict",
+        "split": "development",
+        "retrieved": [
+          "retention:0",
+          "security:1",
+          "retention:1",
+          "retention:2",
+          "architecture:1",
+          "traces:1",
+          "query:2",
+          "ingest:2"
+        ],
+        "expected": [
+          "retention:0",
+          "security:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "stipend-conflict",
+        "split": "development",
+        "retrieved": [
+          "handbook:1",
+          "oncall:0",
+          "pricing:0",
+          "pricing:1",
+          "sla:0",
+          "release-23:2",
+          "oncall:1",
+          "sla:2"
+        ],
+        "expected": [
+          "handbook:1",
+          "oncall:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "timeout-history",
+        "split": "development",
+        "retrieved": [
+          "release-20:2",
+          "release-22:2",
+          "query:0",
+          "release-23:0",
+          "query:2",
+          "release-23:1",
+          "release-20:1",
+          "architecture:1"
+        ],
+        "expected": [
+          "release-22:2",
+          "query:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "retention-types",
+        "split": "development",
+        "retrieved": [
+          "retention:2",
+          "traces:1",
+          "retention:0",
+          "security:1",
+          "release-22:1",
+          "retention:1",
+          "onboarding:2",
+          "architecture:1"
+        ],
+        "expected": [
+          "pricing:1",
+          "traces:1",
+          "retention:2"
+        ],
+        "recall": 0.6666666666666666,
+        "all_evidence_found": false,
+        "reciprocal_rank": 1.0,
+        "missing": [
+          "pricing:1"
+        ]
+      },
+      {
+        "id": "ingestion-scope",
+        "split": "development",
+        "retrieved": [
+          "ingest:1",
+          "query:1",
+          "release-21:0",
+          "release-20:0",
+          "ingest:0",
+          "company:2",
+          "pricing:2",
+          "onboarding:0"
+        ],
+        "expected": [
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-scope",
+        "split": "development",
+        "retrieved": [
+          "query:1",
+          "ingest:1",
+          "release-20:0",
+          "release-21:0",
+          "ingest:0",
+          "query:2",
+          "query:0",
+          "company:1"
+        ],
+        "expected": [
+          "query:1",
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "team-redshift",
+        "split": "development",
+        "retrieved": [
+          "export:0",
+          "release-22:0",
+          "incident-12:2",
+          "pricing:2",
+          "onboarding:1",
+          "export:2",
+          "release-20:2",
+          "export:1"
+        ],
+        "expected": [
+          "export:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "duplicate-cleanup",
+        "split": "development",
+        "retrieved": [
+          "release-21:2",
+          "incident-12:1",
+          "incident-12:0",
+          "incident-12:2",
+          "export:1",
+          "release-21:1",
+          "deploy:2",
+          "incident-08:2"
+        ],
+        "expected": [
+          "incident-12:2",
+          "release-21:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "alert-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:1",
+          "incident-03:1",
+          "incident-03:0",
+          "incident-03:2",
+          "alerts:2",
+          "release-20:1",
+          "incident-08:1",
+          "incident-08:2"
+        ],
+        "expected": [
+          "incident-03:0",
+          "incident-03:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "sdk-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:2",
+          "release-23:1",
+          "alerts:2",
+          "release-20:1",
+          "incident-03:1",
+          "sla:2",
+          "release-21:2",
+          "incident-08:2"
+        ],
+        "expected": [
+          "release-23:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "enterprise-unknown-price",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "sla:0",
+          "faq:1",
+          "pricing:2",
+          "release-21:0",
+          "company:2",
+          "release-22:1"
+        ],
+        "expected": [
+          "pricing:0",
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "apac-unknown",
+        "split": "development",
+        "retrieved": [
+          "faq:1",
+          "regions:2",
+          "release-22:2",
+          "release-22:0",
+          "release-21:0",
+          "pricing:2",
+          "deploy:0",
+          "incident-03:2"
+        ],
+        "expected": [
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "hipaa-unknown",
+        "split": "development",
+        "retrieved": [
+          "company:0",
+          "security:2",
+          "security:0",
+          "faq:0",
+          "sla:0",
+          "regions:0",
+          "release-20:1",
+          "sla:2"
+        ],
+        "expected": [
+          "security:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "region-move",
+        "split": "development",
+        "retrieved": [
+          "regions:1",
+          "onboarding:2",
+          "regions:2",
+          "regions:0",
+          "onboarding:0",
+          "release-22:2",
+          "faq:1",
+          "traces:2"
+        ],
+        "expected": [
+          "regions:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "credits",
+        "split": "heldout",
+        "retrieved": [
+          "sla:0",
+          "sla:2",
+          "sla:1",
+          "release-22:1",
+          "traces:1",
+          "pricing:1",
+          "pricing:2",
+          "pricing:0"
+        ],
+        "expected": [
+          "sla:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "acceptance",
+        "split": "heldout",
+        "retrieved": [
+          "architecture:2",
+          "ingest:1",
+          "ingest:0",
+          "incident-08:0",
+          "architecture:0",
+          "incident-08:1",
+          "release-20:0",
+          "incident-08:2"
+        ],
+        "expected": [
+          "architecture:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "anomaly-warmup",
+        "split": "heldout",
+        "retrieved": [
+          "alerts:0",
+          "onboarding:1",
+          "incident-03:2",
+          "incident-03:0",
+          "alerts:2",
+          "sla:2",
+          "sla:1",
+          "release-22:1"
+        ],
+        "expected": [
+          "alerts:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "export-delete",
+        "split": "heldout",
+        "retrieved": [
+          "export:2",
+          "retention:2",
+          "retention:1",
+          "company:0",
+          "retention:0",
+          "deploy:2",
+          "release-21:2",
+          "security:1"
+        ],
+        "expected": [
+          "export:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "incident-08",
+        "split": "heldout",
+        "retrieved": [
+          "incident-08:0",
+          "incident-08:1",
+          "incident-03:0",
+          "incident-03:2",
+          "incident-03:1",
+          "incident-08:2",
+          "oncall:1",
+          "sla:1"
+        ],
+        "expected": [
+          "incident-08:0",
+          "incident-08:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-cache",
+        "split": "heldout",
+        "retrieved": [
+          "query:2",
+          "query:0",
+          "release-23:0",
+          "architecture:2",
+          "release-20:2",
+          "release-22:2",
+          "architecture:1",
+          "retention:1"
+        ],
+        "expected": [
+          "query:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "batch-limits",
+        "split": "heldout",
+        "retrieved": [
+          "ingest:0",
+          "release-20:0",
+          "ingest:1",
+          "query:1",
+          "pricing:1",
+          "release-23:0",
+          "architecture:2",
+          "security:1"
+        ],
+        "expected": [
+          "ingest:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "sdk-buffer",
+        "split": "heldout",
+        "retrieved": [
+          "sdk:1",
+          "security:1",
+          "incident-08:1",
+          "retention:0",
+          "architecture:2",
+          "regions:1",
+          "release-23:2",
+          "sdk:2"
+        ],
+        "expected": [
+          "sdk:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      }
+    ]
+  },
+  "lexical_only_change": {
+    "mode": "fusion",
+    "k": 8,
+    "summary": {
+      "all": {
+        "cases": 24,
+        "mean_evidence_recall": 0.9861,
+        "all_evidence_rate": 0.9583,
+        "mrr": 0.8948
+      },
+      "development": {
+        "cases": 16,
+        "mean_evidence_recall": 0.9792,
+        "all_evidence_rate": 0.9375,
+        "mrr": 0.8423
+      },
+      "heldout": {
+        "cases": 8,
+        "mean_evidence_recall": 1.0,
+        "all_evidence_rate": 1.0,
+        "mrr": 1.0
+      }
+    },
+    "cases": [
+      {
+        "id": "price-team",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "pricing:2",
+          "ingest:1",
+          "oncall:0",
+          "release-21:0",
+          "handbook:0",
+          "query:1"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "annual",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "pricing:2",
+          "sla:0",
+          "sla:1",
+          "handbook:0",
+          "release-20:0",
+          "traces:0"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "cold-conflict",
+        "split": "development",
+        "retrieved": [
+          "retention:0",
+          "security:1",
+          "retention:1",
+          "retention:2",
+          "traces:1",
+          "query:2",
+          "onboarding:2",
+          "architecture:1"
+        ],
+        "expected": [
+          "retention:0",
+          "security:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "stipend-conflict",
+        "split": "development",
+        "retrieved": [
+          "handbook:1",
+          "oncall:0",
+          "pricing:0",
+          "oncall:1",
+          "oncall:2",
+          "deploy:0",
+          "onboarding:2",
+          "deploy:2"
+        ],
+        "expected": [
+          "handbook:1",
+          "oncall:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "timeout-history",
+        "split": "development",
+        "retrieved": [
+          "release-20:2",
+          "release-23:0",
+          "query:0",
+          "release-22:2",
+          "release-23:1",
+          "release-23:2",
+          "release-20:1",
+          "query:2"
+        ],
+        "expected": [
+          "release-22:2",
+          "query:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.3333333333333333,
+        "missing": []
+      },
+      {
+        "id": "retention-types",
+        "split": "development",
+        "retrieved": [
+          "retention:2",
+          "traces:1",
+          "retention:0",
+          "security:1",
+          "retention:1",
+          "release-22:1",
+          "onboarding:2",
+          "traces:0"
+        ],
+        "expected": [
+          "pricing:1",
+          "traces:1",
+          "retention:2"
+        ],
+        "recall": 0.6666666666666666,
+        "all_evidence_found": false,
+        "reciprocal_rank": 1.0,
+        "missing": [
+          "pricing:1"
+        ]
+      },
+      {
+        "id": "ingestion-scope",
+        "split": "development",
+        "retrieved": [
+          "ingest:1",
+          "query:1",
+          "ingest:0",
+          "release-21:0",
+          "release-20:0",
+          "onboarding:0",
+          "pricing:2",
+          "company:1"
+        ],
+        "expected": [
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-scope",
+        "split": "development",
+        "retrieved": [
+          "query:1",
+          "ingest:1",
+          "ingest:0",
+          "release-20:0",
+          "company:1",
+          "query:2",
+          "release-21:0",
+          "regions:2"
+        ],
+        "expected": [
+          "query:1",
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "team-redshift",
+        "split": "development",
+        "retrieved": [
+          "export:0",
+          "release-22:0",
+          "release-20:2",
+          "onboarding:1",
+          "pricing:2",
+          "incident-12:2",
+          "export:2",
+          "export:1"
+        ],
+        "expected": [
+          "export:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "duplicate-cleanup",
+        "split": "development",
+        "retrieved": [
+          "release-21:2",
+          "incident-12:0",
+          "incident-12:1",
+          "deploy:2",
+          "incident-12:2",
+          "release-21:1",
+          "export:1",
+          "release-23:1"
+        ],
+        "expected": [
+          "incident-12:2",
+          "release-21:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "alert-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:1",
+          "incident-03:0",
+          "incident-03:1",
+          "alerts:2",
+          "incident-03:2",
+          "release-23:2",
+          "release-20:1",
+          "release-21:2"
+        ],
+        "expected": [
+          "incident-03:0",
+          "incident-03:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "sdk-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:2",
+          "release-23:1",
+          "incident-03:1",
+          "alerts:2",
+          "sla:2",
+          "release-21:2",
+          "release-20:1",
+          "incident-08:2"
+        ],
+        "expected": [
+          "release-23:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "enterprise-unknown-price",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "sla:0",
+          "pricing:1",
+          "pricing:2",
+          "faq:1",
+          "traces:1",
+          "release-22:1",
+          "release-22:0"
+        ],
+        "expected": [
+          "pricing:0",
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "apac-unknown",
+        "split": "development",
+        "retrieved": [
+          "regions:2",
+          "faq:1",
+          "release-22:2",
+          "pricing:2",
+          "regions:0",
+          "release-21:0",
+          "regions:1",
+          "sla:1"
+        ],
+        "expected": [
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "hipaa-unknown",
+        "split": "development",
+        "retrieved": [
+          "company:0",
+          "security:0",
+          "regions:0",
+          "faq:0",
+          "retention:2",
+          "export:2",
+          "security:2",
+          "sla:0"
+        ],
+        "expected": [
+          "security:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.14285714285714285,
+        "missing": []
+      },
+      {
+        "id": "region-move",
+        "split": "development",
+        "retrieved": [
+          "regions:1",
+          "onboarding:2",
+          "regions:2",
+          "release-22:2",
+          "onboarding:0",
+          "regions:0",
+          "faq:1",
+          "pricing:2"
+        ],
+        "expected": [
+          "regions:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "credits",
+        "split": "heldout",
+        "retrieved": [
+          "sla:0",
+          "sla:2",
+          "pricing:1",
+          "release-22:1",
+          "pricing:0",
+          "sla:1",
+          "traces:1",
+          "pricing:2"
+        ],
+        "expected": [
+          "sla:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "acceptance",
+        "split": "heldout",
+        "retrieved": [
+          "architecture:2",
+          "ingest:0",
+          "architecture:0",
+          "ingest:1",
+          "incident-08:0",
+          "incident-08:1",
+          "incident-08:2",
+          "release-20:0"
+        ],
+        "expected": [
+          "architecture:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "anomaly-warmup",
+        "split": "heldout",
+        "retrieved": [
+          "alerts:0",
+          "onboarding:1",
+          "incident-03:2",
+          "release-21:0",
+          "incident-03:0",
+          "incident-12:2",
+          "regions:2",
+          "alerts:1"
+        ],
+        "expected": [
+          "alerts:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "export-delete",
+        "split": "heldout",
+        "retrieved": [
+          "export:2",
+          "retention:2",
+          "company:0",
+          "onboarding:2",
+          "export:1",
+          "release-21:2",
+          "onboarding:1",
+          "export:0"
+        ],
+        "expected": [
+          "export:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "incident-08",
+        "split": "heldout",
+        "retrieved": [
+          "incident-08:0",
+          "incident-08:1",
+          "incident-08:2",
+          "release-20:1",
+          "incident-03:0",
+          "incident-03:2",
+          "incident-12:0",
+          "incident-03:1"
+        ],
+        "expected": [
+          "incident-08:0",
+          "incident-08:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-cache",
+        "split": "heldout",
+        "retrieved": [
+          "query:2",
+          "query:0",
+          "architecture:2",
+          "release-23:0",
+          "architecture:1",
+          "release-20:2",
+          "release-22:2",
+          "retention:1"
+        ],
+        "expected": [
+          "query:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "batch-limits",
+        "split": "heldout",
+        "retrieved": [
+          "ingest:0",
+          "architecture:0",
+          "query:0",
+          "pricing:1",
+          "export:1",
+          "sdk:1",
+          "deploy:0",
+          "ingest:2"
+        ],
+        "expected": [
+          "ingest:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "sdk-buffer",
+        "split": "heldout",
+        "retrieved": [
+          "sdk:1",
+          "regions:1",
+          "release-23:2",
+          "incident-08:1",
+          "sdk:0",
+          "sdk:2",
+          "deploy:2",
+          "architecture:1"
+        ],
+        "expected": [
+          "sdk:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      }
+    ]
+  },
+  "improved": {
+    "mode": "hybrid",
+    "k": 8,
+    "summary": {
+      "all": {
+        "cases": 24,
+        "mean_evidence_recall": 1.0,
+        "all_evidence_rate": 1.0,
+        "mrr": 0.8948
+      },
+      "development": {
+        "cases": 16,
+        "mean_evidence_recall": 1.0,
+        "all_evidence_rate": 1.0,
+        "mrr": 0.8423
+      },
+      "heldout": {
+        "cases": 8,
+        "mean_evidence_recall": 1.0,
+        "all_evidence_rate": 1.0,
+        "mrr": 1.0
+      }
+    },
+    "cases": [
+      {
+        "id": "price-team",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "pricing:2",
+          "ingest:1",
+          "oncall:0",
+          "release-21:0",
+          "handbook:0",
+          "query:1"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "annual",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "pricing:1",
+          "pricing:2",
+          "sla:0",
+          "sla:1",
+          "handbook:0",
+          "release-20:0",
+          "traces:0"
+        ],
+        "expected": [
+          "pricing:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "cold-conflict",
+        "split": "development",
+        "retrieved": [
+          "retention:0",
+          "security:1",
+          "traces:1",
+          "incident-08:0",
+          "incident-03:2",
+          "retention:1",
+          "query:2",
+          "onboarding:2"
+        ],
+        "expected": [
+          "retention:0",
+          "security:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "stipend-conflict",
+        "split": "development",
+        "retrieved": [
+          "handbook:1",
+          "oncall:0",
+          "deploy:2",
+          "pricing:0",
+          "oncall:1",
+          "deploy:0",
+          "onboarding:2",
+          "sdk:2"
+        ],
+        "expected": [
+          "handbook:1",
+          "oncall:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "timeout-history",
+        "split": "development",
+        "retrieved": [
+          "release-20:2",
+          "release-23:0",
+          "query:0",
+          "release-22:2",
+          "release-23:1",
+          "release-23:2",
+          "release-20:1",
+          "query:2"
+        ],
+        "expected": [
+          "release-22:2",
+          "query:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.3333333333333333,
+        "missing": []
+      },
+      {
+        "id": "retention-types",
+        "split": "development",
+        "retrieved": [
+          "retention:2",
+          "traces:1",
+          "retention:0",
+          "security:1",
+          "release-22:1",
+          "onboarding:2",
+          "traces:0",
+          "pricing:1"
+        ],
+        "expected": [
+          "pricing:1",
+          "traces:1",
+          "retention:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "ingestion-scope",
+        "split": "development",
+        "retrieved": [
+          "ingest:1",
+          "query:1",
+          "ingest:0",
+          "release-21:0",
+          "release-20:0",
+          "onboarding:0",
+          "pricing:2",
+          "company:1"
+        ],
+        "expected": [
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-scope",
+        "split": "development",
+        "retrieved": [
+          "query:1",
+          "ingest:1",
+          "query:2",
+          "ingest:0",
+          "release-20:0",
+          "company:1",
+          "release-21:0",
+          "regions:2"
+        ],
+        "expected": [
+          "query:1",
+          "ingest:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "team-redshift",
+        "split": "development",
+        "retrieved": [
+          "export:0",
+          "release-22:0",
+          "sla:1",
+          "release-20:2",
+          "onboarding:1",
+          "pricing:2",
+          "incident-12:2",
+          "export:2"
+        ],
+        "expected": [
+          "export:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "duplicate-cleanup",
+        "split": "development",
+        "retrieved": [
+          "release-21:2",
+          "incident-12:0",
+          "incident-12:1",
+          "deploy:2",
+          "incident-12:2",
+          "release-21:1",
+          "export:1",
+          "release-23:1"
+        ],
+        "expected": [
+          "incident-12:2",
+          "release-21:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "alert-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:1",
+          "incident-03:0",
+          "incident-03:1",
+          "alerts:2",
+          "incident-03:2",
+          "release-23:2",
+          "release-20:1",
+          "release-21:2"
+        ],
+        "expected": [
+          "incident-03:0",
+          "incident-03:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "sdk-fix",
+        "split": "development",
+        "retrieved": [
+          "release-23:2",
+          "release-23:1",
+          "incident-03:1",
+          "alerts:2",
+          "sla:2",
+          "release-21:2",
+          "release-20:1",
+          "incident-08:2"
+        ],
+        "expected": [
+          "release-23:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "enterprise-unknown-price",
+        "split": "development",
+        "retrieved": [
+          "pricing:0",
+          "sla:0",
+          "pricing:1",
+          "pricing:2",
+          "faq:1",
+          "traces:1",
+          "release-22:1",
+          "release-22:0"
+        ],
+        "expected": [
+          "pricing:0",
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "apac-unknown",
+        "split": "development",
+        "retrieved": [
+          "regions:2",
+          "faq:1",
+          "release-22:2",
+          "pricing:2",
+          "regions:0",
+          "release-21:0",
+          "regions:1",
+          "sla:1"
+        ],
+        "expected": [
+          "faq:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.5,
+        "missing": []
+      },
+      {
+        "id": "hipaa-unknown",
+        "split": "development",
+        "retrieved": [
+          "company:0",
+          "security:0",
+          "regions:0",
+          "faq:0",
+          "retention:2",
+          "export:2",
+          "security:2",
+          "sla:0"
+        ],
+        "expected": [
+          "security:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 0.14285714285714285,
+        "missing": []
+      },
+      {
+        "id": "region-move",
+        "split": "development",
+        "retrieved": [
+          "regions:1",
+          "onboarding:2",
+          "regions:2",
+          "release-22:2",
+          "onboarding:0",
+          "regions:0",
+          "faq:1",
+          "pricing:2"
+        ],
+        "expected": [
+          "regions:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "credits",
+        "split": "heldout",
+        "retrieved": [
+          "sla:0",
+          "sla:2",
+          "pricing:1",
+          "release-22:1",
+          "pricing:0",
+          "traces:1",
+          "release-23:2",
+          "faq:1"
+        ],
+        "expected": [
+          "sla:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "acceptance",
+        "split": "heldout",
+        "retrieved": [
+          "architecture:2",
+          "ingest:0",
+          "architecture:0",
+          "ingest:1",
+          "incident-08:0",
+          "incident-08:1",
+          "incident-08:2",
+          "release-20:0"
+        ],
+        "expected": [
+          "architecture:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "anomaly-warmup",
+        "split": "heldout",
+        "retrieved": [
+          "alerts:0",
+          "onboarding:1",
+          "regions:2",
+          "traces:1",
+          "incident-03:2",
+          "release-21:0",
+          "incident-03:0",
+          "incident-12:2"
+        ],
+        "expected": [
+          "alerts:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "export-delete",
+        "split": "heldout",
+        "retrieved": [
+          "export:2",
+          "retention:2",
+          "company:0",
+          "onboarding:2",
+          "export:1",
+          "release-21:2",
+          "onboarding:1",
+          "export:0"
+        ],
+        "expected": [
+          "export:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "incident-08",
+        "split": "heldout",
+        "retrieved": [
+          "incident-08:0",
+          "incident-08:1",
+          "incident-08:2",
+          "release-20:1",
+          "incident-03:0",
+          "incident-03:2",
+          "incident-12:0",
+          "incident-03:1"
+        ],
+        "expected": [
+          "incident-08:0",
+          "incident-08:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "query-cache",
+        "split": "heldout",
+        "retrieved": [
+          "query:2",
+          "query:0",
+          "architecture:2",
+          "release-23:0",
+          "architecture:1",
+          "release-20:2",
+          "release-22:2",
+          "retention:1"
+        ],
+        "expected": [
+          "query:2"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "batch-limits",
+        "split": "heldout",
+        "retrieved": [
+          "ingest:0",
+          "architecture:0",
+          "query:0",
+          "pricing:1",
+          "export:1",
+          "sdk:1",
+          "deploy:0",
+          "ingest:2"
+        ],
+        "expected": [
+          "ingest:0"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      },
+      {
+        "id": "sdk-buffer",
+        "split": "heldout",
+        "retrieved": [
+          "sdk:1",
+          "regions:1",
+          "release-23:2",
+          "incident-08:1",
+          "sdk:0",
+          "sdk:2",
+          "deploy:2",
+          "architecture:1"
+        ],
+        "expected": [
+          "sdk:1"
+        ],
+        "recall": 1.0,
+        "all_evidence_found": true,
+        "reciprocal_rank": 1.0,
+        "missing": []
+      }
+    ]
+  },
+  "generation": {
+    "label": "Actual generation; regex checks are limited proxies, manually review answers",
+    "model": "openai/gpt-oss-120b",
+    "provider": "openai",
+    "summary": {
+      "cases": 1,
+      "provider_errors": 0,
+      "pattern_passes": 1,
+      "verification_failures": 0
+    },
+    "cases": [
+      {
+        "id": "price-team",
+        "status": "answered",
+        "answer": "Team costs $449 per month and includes 20 seats\n\n**Sources:** [pricing:0 | Plans and billing]",
+        "expected_patterns_pass": true,
+        "expected_source_coverage": 1.0,
+        "citation_ids_valid": true,
+        "trace_id": "4c533cab-2da6-4a3c-a4b4-e9c3d535c029",
+        "seconds": 6.8
+      }
+    ]
+  }
+}

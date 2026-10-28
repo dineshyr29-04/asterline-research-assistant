@@ -20,7 +20,9 @@ def main():
             raise ValueError("A tracked file contains a configured credential; refusing submission")
     assert hashlib.sha256(settings.corpus_path.read_bytes()).hexdigest() == CORPUS_SHA256
     for name in ["README.md", "SUBMISSION.md", "docs/design.md", "docs/ai-use.md", "docs/demo.md",
-                 ".env.example", "requirements.lock.txt", "evaluation/analysis.md"]:
+                 ".env.example", "requirements.lock.txt", "run.sh", "evaluation/analysis.md",
+                 "docs/code-walkthrough.md", "docs/requirements-checklist.md", "tests/run_eval.py",
+                 "evaluation/baseline.json", "evaluation/improved.json"]:
         assert (ROOT / name).is_file(), f"Missing {name}"
     live = json.loads((ROOT / "evaluation/live-results.json").read_text())["generation"]
     assert len(live["cases"]) == 24, "Research evaluation is incomplete"
