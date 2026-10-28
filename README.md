@@ -76,7 +76,7 @@ python -m scripts.evaluate
 
 The default evaluation runs **real local embeddings against the original corpus**, without a generation key. Results are committed in [evaluation/results.json](evaluation/results.json). It compares dense retrieval, lexical fusion alone, and the final comparison-aware retrieval at the same eight-chunk budget.
 
-Local verification completed with **32 passing tests**, including actual Streamlit AppTest execution. The one-command launch also passed HTTP health and HTML endpoint checks (`python -m scripts.smoke_server` against a running server).
+Local verification completed with **36 passing tests**, including actual Streamlit AppTest execution. The one-command launch also passed HTTP health and HTML endpoint checks (`python -m scripts.smoke_server` against a running server).
 
 | Metric, 24 research cases | Dense baseline | Final retrieval |
 |---|---:|---:|
@@ -86,7 +86,7 @@ Local verification completed with **32 passing tests**, including actual Streaml
 
 The improvement trades some first-hit ranking for complete evidence coverage. These are **retrieval metrics, not answer accuracy**. The small, authored benchmark does not establish generalization. See [failure analysis](evaluation/analysis.md).
 
-Once generation credentials are configured, run actual answer and conversational-memory evaluations:
+To reproduce the actual answer and conversational-memory evaluations:
 
 ```text
 python -m scripts.evaluate --live --output evaluation/live-results.json
@@ -101,14 +101,14 @@ Set `LANGSMITH_TRACING=true`, `LANGSMITH_API_KEY` and `LANGSMITH_PROJECT` in `.e
 
 After live evaluation, capture successful, conflict, memory-continuity and difficult/failed runs in [docs/runs.md](docs/runs.md). Grant the assignment reviewer access to the project or provide an accessible project link. A locally displayed trace ID alone does not prove a run was uploaded or is accessible.
 
-**Submission status:** local implementation, deterministic tests and retrieval benchmark are complete. Real-provider answer/memory evaluation and accessible LangSmith run links remain pending until you configure credentials. Do not submit the pending trace checklist as completed evidence.
+**Submission evidence:** see [SUBMISSION.md](SUBMISSION.md) for actual live results, verified public LangSmith links and the free-tier reviewer-access limitation. The public links share individual synthetic runs; they do not grant whole-project membership.
 
 ## Repository guide
 
 - [Design and architecture](docs/design.md): agent contracts, information flow, memory policy and limitations.
 - [Evaluation and failure analysis](evaluation/analysis.md): metrics, reproducible improvement and known weaknesses.
 - [Walkthrough](docs/demo.md): a short, reproducible demonstration and ownership questions.
-- [Trace evidence and final checklist](docs/runs.md): remaining credential-dependent submission steps.
+- [Trace evidence](docs/runs.md): actual research and memory runs for review.
 - [AI-use disclosure](docs/ai-use.md): assistance used and how the output was checked.
 - `data/corpus.jsonl`: original 75 chunks from 25 documents, byte-for-byte preserved; SHA-256 recorded in `data/corpus.sha256` and enforced at load.
 
@@ -117,7 +117,7 @@ After live evaluation, capture successful, conflict, memory-continuity and diffi
 - **Provider not configured:** copy `.env.example` to `.env`; set a valid API key or start Ollama and pull your chosen model. Restart after changing configuration.
 - **Model download fails:** allow the Hugging Face/model storage download, then rerun `python -m scripts.prepare`. After caching, embeddings need no remote inference service.
 - **401 / 403:** check the key, model access and endpoint. Raw provider response bodies are not shown or saved.
-- **429 / 5xx / timeout:** bounded retries honor numeric `Retry-After` with a ten-second cap; failures show useful errors and do not save a new answer or automatic memory update.
+- **429 / 5xx / timeout / upstream disconnect:** bounded retries honor numeric `Retry-After` with a sixty-second cap; failures show useful errors and do not save a new answer or automatic memory update. Resume interrupted research evaluations with `--resume` to retain completed cases.
 - **Invalid JSON / rejected answer:** choose a model that follows the structured schema, inspect evidence, or narrow the question. Verification is intentionally conservative.
 - **Corpus integrity error:** restore the original file from Git. Do not edit or reformat it.
 - **Fresh local demo:** stop the app and remove your generated `runtime/` directory yourself if a clean state is needed. This deletes local memories and cached artifacts; it does not remove shared traces.

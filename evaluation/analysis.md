@@ -2,7 +2,7 @@
 
 ## What was actually run
 
-The committed `results.json` was generated using real local FastEmbed MiniLM embeddings and a persistent local Chroma index, on the unchanged 75-chunk corpus. No generation API credentials were available. **No real-provider answer accuracy, automatic memory quality or successful LangSmith upload is claimed.**
+The committed `results.json` was generated using real local FastEmbed MiniLM embeddings and a persistent local Chroma index, on the unchanged 75-chunk corpus. After generation credentials were configured, the actual Groq research suite and conversational-memory sequence were also run. See `live-results.json`, `live-memory-results.json` and the submission index for their outcomes and verified public traces. Retrieval metrics below remain distinct from live answer checks.
 
 The deterministic pytest suite separately verifies memory persistence/isolation/correction/deletion, privacy checks, provider retry/error handling, three-role handoffs, rejected-draft repair and UI user switching. Fixture providers are explicitly named fixtures; their responses are not model-quality evidence.
 
@@ -50,7 +50,25 @@ An intermediate regression treated short incidental questions as independent fac
 - User Bob requests Alice's session: rejected before conversation access or model calls.
 - Correction / forgetting: old context cleared across sessions, other users preserved, deleted context not reinserted as a command transcript.
 
-These are injected failures testing code paths. They are not examples of actual hosted model failures.
+The cases in this subsection are injected failures testing code paths. Actual hosted-model and transport failures are described below and preserved separately.
+
+## Actual live failures and fixes
+
+- **Unrelated query rewrite:** the context model sometimes copied the schema's example phrase, "standalone company research question", causing retrieval to return generic company material and then an unnecessary abstention. `live-before-fixes.json` preserves these outcomes. The prompt now uses a concrete grounded example, and a deterministic guard rejects unrelated/placeholder rewrites. Subsequent cold-storage and stipend conflict answers retrieve and cite the applicable current and older documents.
+- **Upstream disconnect and free-tier limits:** an HTTP protocol disconnect originally escaped the narrower network-error handler. The provider now catches transport errors, retries within limits and returns a safe failure. Numeric Retry-After is honored up to sixty seconds; the evaluation saves after each case and can resume without rerunning completed questions. Actual transient provider failures are preserved in `live-after-query-fix.json` and the first memory-run artifact.
+- **Typographic quote rejection:** the duplicate-export answer used a non-breaking hyphen in "pre-existing" while the corpus used ASCII. Both drafts failed the exact quote check despite matching words. A narrow matcher now canonicalizes only whitespace and typographic hyphen variants to the exact source substring; changed words or numbers remain invalid. A regression test covers both accepted typography and rejected semantic changes.
+- **Missing private context:** after forgetting, or for a different user, a personal plan question should not depend on a remote provider or guess from company documentation. A local context guard now asks which plan the user uses when neither durable memory nor the current user's conversation has a plan hint. This is tested with an unavailable provider and Alice's context present only in Alice's store.
+- **Incomplete numeric answer (remaining limitation):** the service-credit answer describes the highest-tier rule without computing the 50% tier for the supplied 98.8% uptime example. The research contract was strengthened and the case rerun, but the recorded final answer still omits this calculation. This partial answer remains visible rather than being marked successful.
+
+Some authored regex checks are stricter than the actual question. The Team/Redshift case expects the word "Enterprise" even though a correct response can simply reject Redshift for Team and list BigQuery/Snowflake. The batch-size pattern expects an ASCII space, while a supported answer may render a narrow no-break space in "1 MB". Keep those automatic outcomes visible and distinguish manual review from pattern scores; do not claim the regex suite alone establishes semantic accuracy.
+
+## Final live results
+
+The final 24-question research artifact records 21/24 automatic pattern passes, zero provider errors, zero verification failures and valid corpus chunk IDs in every answer. Two pattern misses are false alarms described above; the service-credit numerical example remains incomplete. `manual-review.json` records these distinctions as Codex-assisted review, not an independent human accuracy score.
+
+The final actual-provider memory sequence passes 6/6 checks: automatic context, new-session continuity after reopening storage, correction, cross-user isolation, forgetting, and no resurrection after reopening. Missing personal context and explicit forgetting use deterministic local controls; they do not need generation calls. The earlier network-failure outcomes are preserved in `live-memory-before-network-retry.json`.
+
+Public representative runs, including before-fix failures, are linked from the submission index after unauthenticated access checks. The account's one-seat free tier does not provide whole-project membership to an additional reviewer; public individual traces are the supplied review mechanism.
 
 ## Reproduce and extend
 

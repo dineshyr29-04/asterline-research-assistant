@@ -1,0 +1,26 @@
+{
+  "reviewer": "Codex-assisted review of actual saved model outputs against the authored cases and source passages; not an independent human score",
+  "automatic_pattern_passes": 21,
+  "total_research_cases": 24,
+  "cases_requiring_interpretation": [
+    {
+      "id": "team-redshift",
+      "verdict": "Answer addresses the question; automatic pattern is overstrict",
+      "reason": "The response correctly rejects Redshift for Team and names BigQuery and Snowflake, with export/release citations. The pattern additionally requires the word Enterprise, which the question does not require."
+    },
+    {
+      "id": "batch-limits",
+      "verdict": "Correct quantities; automatic pattern rejects typographic spacing",
+      "reason": "The response gives 400 records or 1 MB, whichever comes first, citing ingest:0. Its narrow no-break space does not match the authored ASCII-space regex."
+    },
+    {
+      "id": "credits",
+      "verdict": "Partial answer retained as a real limitation",
+      "reason": "The response correctly says credits do not stack and only the highest tier applies, citing sla:0, but does not compute the 50% credit tier for 98.8% uptime. A stronger numeric-coverage instruction did not resolve this in the recorded rerun."
+    }
+  ],
+  "citation_ids_valid_in_all_final_cases": true,
+  "provider_errors_in_final_cases": 0,
+  "verification_failures_in_final_cases": 0,
+  "limitation": "Existing chunk IDs, exact quotes and model approval do not prove perfect semantic entailment. The small authored suite does not establish generalization."
+}

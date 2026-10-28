@@ -1,0 +1,78 @@
+{
+  "label": "Actual-provider synthetic conversation sequences; manually review answers and traces",
+  "model": "openai/gpt-oss-120b",
+  "provider": "openai",
+  "passed": 6,
+  "total": 6,
+  "cases": [
+    {
+      "id": "automatic-context",
+      "passed": true,
+      "status": "answered",
+      "answer": "The Team plan supports Warehouse Export destinations BigQuery and Snowflake.\n\n**Sources:** export:0 \u2014 Warehouse Export specification; release-22:0 \u2014 Version 2.2 release notes",
+      "trace_id": "53ce348a-1aa8-4edc-940e-10045c8e822c",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Team",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:24:20.990296+00:00"
+        }
+      ]
+    },
+    {
+      "id": "restart-new-session-followup",
+      "passed": true,
+      "status": "answered",
+      "answer": "Your Team plan includes 180 days of searchable run-record retention.\n\n**Sources:** pricing:1 \u2014 Plans and billing",
+      "trace_id": "04ac8fb7-0261-43a7-ae81-7a24194d5d4b",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Team",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:24:20.990296+00:00"
+        }
+      ]
+    },
+    {
+      "id": "automatic-correction",
+      "passed": true,
+      "status": "answered",
+      "answer": "Enterprise plan includes 540 days of searchable run-record retention.\n\n**Sources:** pricing:1 \u2014 Plans and billing",
+      "trace_id": "cbcb15ce-416f-4adb-a859-7fe046d2da78",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Enterprise",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:24:53.676186+00:00"
+        }
+      ]
+    },
+    {
+      "id": "cross-user-isolation",
+      "passed": true,
+      "status": "abstained",
+      "answer": "I don't have your workspace plan in this conversation or your saved context. Which plan do you use: Launch, Team or Enterprise?",
+      "trace_id": "88b4d11d-1279-433d-b1f1-e572c48c1080",
+      "memory": []
+    },
+    {
+      "id": "forget-command",
+      "passed": true,
+      "status": "memory",
+      "answer": "All your memories and conversation history have been deleted locally.",
+      "trace_id": "ed22916f-d105-431a-b328-696e921fb93e",
+      "memory": []
+    },
+    {
+      "id": "forget-no-resurrection-after-restart",
+      "passed": true,
+      "status": "abstained",
+      "answer": "I don't have your workspace plan in this conversation or your saved context. Which plan do you use: Launch, Team or Enterprise?",
+      "trace_id": "fd14320a-f3b7-436c-a92d-091b2f859426",
+      "memory": []
+    }
+  ]
+}

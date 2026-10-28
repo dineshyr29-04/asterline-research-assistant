@@ -1,0 +1,132 @@
+{
+  "publicly_shared": true,
+  "runs": [
+    {
+      "suite": "research",
+      "case": "price-team",
+      "status": "answered",
+      "trace_id": "71d74482-18a3-48f2-9308-4fc8f1e25553",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/e489f47e-2d0c-4789-9b49-dda508fdcc0c/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research",
+      "case": "cold-conflict",
+      "status": "answered",
+      "trace_id": "f9c6c3a1-e8c3-4bf3-ab37-ec3d31137a8f",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/af30371a-6b92-4954-92a0-40d3e96a9f2e/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research",
+      "case": "retention-types",
+      "status": "answered",
+      "trace_id": "bd721fc3-90a7-41f5-a076-1816b195eed0",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/5b49b586-2fb1-4178-bfb8-586b3fb71f94/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research",
+      "case": "stipend-conflict",
+      "status": "answered",
+      "trace_id": "859a37ca-2862-4b16-8ae0-92e25c4d87a6",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/ac9349a2-1dec-4c4d-9ae1-f1305f5406dc/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research",
+      "case": "duplicate-cleanup",
+      "status": "answered",
+      "trace_id": "4f090ca9-800e-40d2-8265-671e91626a71",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/d9f35b0b-4d2d-459d-a450-1c2e53d1b533/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research",
+      "case": "hipaa-unknown",
+      "status": "answered",
+      "trace_id": "c29ffffe-f8f4-4d1d-be48-919f867d6d7b",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/09f2114c-abc6-4e35-a28e-31065590be05/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "automatic-context",
+      "status": "answered",
+      "trace_id": "53ce348a-1aa8-4edc-940e-10045c8e822c",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/bff0cb15-809f-474d-9147-1656f82719a4/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "restart-new-session-followup",
+      "status": "answered",
+      "trace_id": "04ac8fb7-0261-43a7-ae81-7a24194d5d4b",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/2cc04838-a27d-49f2-8f44-a32b17e7c615/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "automatic-correction",
+      "status": "answered",
+      "trace_id": "cbcb15ce-416f-4adb-a859-7fe046d2da78",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/2021d3a0-8e21-443c-9c83-14af6ae5a24d/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "cross-user-isolation",
+      "status": "abstained",
+      "trace_id": "88b4d11d-1279-433d-b1f1-e572c48c1080",
+      "child_spans": 1,
+      "public_url": "https://smith.langchain.com/public/f79e732c-9e16-454a-a7b8-fe9fee12fb5e/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "forget-command",
+      "status": "memory",
+      "trace_id": "ed22916f-d105-431a-b328-696e921fb93e",
+      "child_spans": 0,
+      "public_url": "https://smith.langchain.com/public/d45905e8-7c81-477a-add7-ff79d862fc9b/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "memory",
+      "case": "forget-no-resurrection-after-restart",
+      "status": "abstained",
+      "trace_id": "fd14320a-f3b7-436c-a92d-091b2f859426",
+      "child_spans": 1,
+      "public_url": "https://smith.langchain.com/public/63b50426-ce60-498e-9f18-2b1027e6588d/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research-before-fix",
+      "case": "cold-conflict",
+      "status": "abstained",
+      "trace_id": "67cde279-b65b-417f-8e85-78b0bc86eb85",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/2d610436-d6f2-4325-8c9d-5941d28dc8a4/r",
+      "anonymous_access_verified": true
+    },
+    {
+      "suite": "research-before-fix",
+      "case": "stipend-conflict",
+      "status": "abstained",
+      "trace_id": "fa62e62d-3796-412e-9e31-ddd8476dc3ef",
+      "child_spans": 4,
+      "public_url": "https://smith.langchain.com/public/c28b4ade-3ef5-471c-a834-f0986a329d71/r",
+      "anonymous_access_verified": true
+    }
+  ],
+  "errors": []
+}

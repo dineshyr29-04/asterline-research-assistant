@@ -13,3 +13,4 @@ runtime/
 tmp/
 dist/
 *.egg-info/
+submission-package.zip

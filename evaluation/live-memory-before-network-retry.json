@@ -1,0 +1,76 @@
+{
+  "label": "Actual-provider synthetic conversation sequences; manually review answers and traces",
+  "model": "openai/gpt-oss-120b",
+  "provider": "openai",
+  "passed": 4,
+  "total": 6,
+  "cases": [
+    {
+      "id": "automatic-context",
+      "passed": true,
+      "status": "answered",
+      "answer": "For the Team plan, Warehouse Export can export to BigQuery and Snowflake.\n\n**Sources:** export:0 \u2014 Warehouse Export specification; release-22:0 \u2014 Version 2.2 release notes",
+      "trace_id": "259a867a-d612-448b-8667-815162121145",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Team",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:17:49.807707+00:00"
+        }
+      ]
+    },
+    {
+      "id": "restart-new-session-followup",
+      "passed": true,
+      "status": "answered",
+      "answer": "Your Team plan includes 180 days of searchable run-record retention.\n\n**Sources:** pricing:1 \u2014 Plans and billing",
+      "trace_id": "5b39b4c2-f31d-483e-96ec-6408df751bfa",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Team",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:17:49.807707+00:00"
+        }
+      ]
+    },
+    {
+      "id": "automatic-correction",
+      "passed": true,
+      "status": "answered",
+      "answer": "Enterprise plan includes 540 days of searchable run-record retention.\n\n**Sources:** pricing:1 \u2014 Plans and billing",
+      "trace_id": "8c495206-eee4-4161-ba81-1a58fde1c6fb",
+      "memory": [
+        {
+          "key": "workspace_plan",
+          "value": "Enterprise",
+          "provenance": "user statement",
+          "updated_at": "2026-10-28T05:18:22.352582+00:00"
+        }
+      ]
+    },
+    {
+      "id": "cross-user-isolation",
+      "passed": false,
+      "status": "error",
+      "error": "Model provider timed out or is unreachable. No answer was saved.",
+      "trace_id": "28a2abf8-3ff9-41f2-9973-8359d3b019d3"
+    },
+    {
+      "id": "forget-command",
+      "passed": true,
+      "status": "memory",
+      "answer": "All your memories and conversation history have been deleted locally.",
+      "trace_id": "a66cdab1-7aa4-4f0e-a3e5-9005451612d7",
+      "memory": []
+    },
+    {
+      "id": "forget-no-resurrection-after-restart",
+      "passed": false,
+      "status": "error",
+      "error": "Model provider timed out or is unreachable. No answer was saved.",
+      "trace_id": "13295ba7-1b26-4564-91ba-a6af3e3bd6e1"
+    }
+  ]
+}

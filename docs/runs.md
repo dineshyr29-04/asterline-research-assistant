@@ -1,45 +1,20 @@
-# Trace evidence and submission checklist
+# Actual LangSmith evidence
 
-## Current status
+See [submission index](../SUBMISSION.md) for the complete public run table and free-tier access limitation.
 
-Implementation, local retrieval evaluation and deterministic verification are present. The candidate has now configured credentials. A synthetic connection check succeeded with Groq `openai/gpt-oss-120b`, and its LangSmith trace was uploaded and read back through the API. Results are recorded in `evaluation/connection-check.json`.
-
-**Full live research/memory evaluation and reviewer access remain pending.** A connection-check run demonstrates connectivity, not the three-agent application's answer quality.
-
-## Complete after configuring credentials
-
-1. Copy `.env.example` to `.env`; choose the generation provider/model.
-2. Set `LANGSMITH_TRACING=true`, `LANGSMITH_API_KEY` and `LANGSMITH_PROJECT`; restart the application.
-3. Run `python -m scripts.evaluate --live --output evaluation/live-results.json` and `python -m scripts.evaluate_memory --output evaluation/live-memory-results.json`.
-4. Open the LangSmith project. Confirm the runs were uploaded, inspect nested agent spans and verify no secrets or real personal data are present.
-5. Record actual links in the table below. Grant access to **radialpulse@nxtwave.co.in** or provide an accessible project link, as requested by the assignment. Confirm reviewer access rather than relying on your own authenticated browser.
-6. Review failed/uncertain cases, retain representative failures honestly, and update analysis with model-specific findings.
-
-| Required evidence | Actual accessible URL | What reviewer should inspect |
+| Suite / case | Outcome | Public trace |
 |---|---|---|
-| LangSmith project | [Configured project](https://smith.langchain.com/o/50f0f811-ae6c-434f-90b1-987936ceff44/projects/p/663fc501-699d-4534-b740-95fdc40b29e7) | Upload/read confirmed for owner; reviewer access still needs confirmation |
-| Synthetic connection check | [Verified uploaded run](https://smith.langchain.com/o/50f0f811-ae6c-434f-90b1-987936ceff44/projects/p/663fc501-699d-4534-b740-95fdc40b29e7/r/73a0274a-6e90-44e6-b27e-df45d319f315) | Groq returned valid JSON; this is not a representative research answer |
-| Supported answer | Pending live run | Known chunk IDs, exact quotes, independent review |
-| Temporal conflict | Pending live run | Effective date/scope and explicit supersession |
-| Cross-session memory | Pending live run | Alice context retained after restart |
-| Correction / forgetting / isolation | Pending live run | Replaced context, deleted history, Bob isolation |
-| Difficult or failed case | Pending live run | Real model refusal/revision/failure and honest diagnosis |
-
-Synthetic injected failures may be useful for debugging, but label them as injected; they do not replace a real difficult-case account. A trace ID created locally does not by itself establish remote upload or shared access.
-
-## Final repository check
-
-- [x] Working app and three distinct collaborating agents.
-- [x] Unchanged original corpus, verified by SHA-256.
-- [x] Local embedding inference and persistent local vector store.
-- [x] User-scoped persistent memory and conversations, inspect/correct/forget controls.
-- [x] Setup, tested dependency lock, one launch command and secret-free `.env.example`.
-- [x] Design note with diagram, limitations and trade-offs.
-- [x] Reproducible local retrieval evaluation with observed failure and measured improvement.
-- [x] Deterministic provider, orchestration, memory, privacy and UI tests.
-- [x] AI-use disclosure and walkthrough.
-- [ ] Run and manually review actual provider research and memory evaluations.
-- [ ] Add accessible LangSmith project/run links and confirm reviewer access.
-- [ ] Review `git status`, ensure no secrets/generated user databases are staged, and push the final commits.
-
-The assignment's deadline text says "Oct 27th (Wed) EOD". The supplied package preserves this wording; confirm the intended year/date with the issuer if it is ambiguous. Do not infer an extension from the weekday mismatch.
+| research / price-team | answered | [Open trace](https://smith.langchain.com/public/e489f47e-2d0c-4789-9b49-dda508fdcc0c/r) |
+| research / cold-conflict | answered | [Open trace](https://smith.langchain.com/public/af30371a-6b92-4954-92a0-40d3e96a9f2e/r) |
+| research / retention-types | answered | [Open trace](https://smith.langchain.com/public/5b49b586-2fb1-4178-bfb8-586b3fb71f94/r) |
+| research / stipend-conflict | answered | [Open trace](https://smith.langchain.com/public/ac9349a2-1dec-4c4d-9ae1-f1305f5406dc/r) |
+| research / duplicate-cleanup | answered | [Open trace](https://smith.langchain.com/public/d9f35b0b-4d2d-459d-a450-1c2e53d1b533/r) |
+| research / hipaa-unknown | answered | [Open trace](https://smith.langchain.com/public/09f2114c-abc6-4e35-a28e-31065590be05/r) |
+| memory / automatic-context | answered | [Open trace](https://smith.langchain.com/public/bff0cb15-809f-474d-9147-1656f82719a4/r) |
+| memory / restart-new-session-followup | answered | [Open trace](https://smith.langchain.com/public/2cc04838-a27d-49f2-8f44-a32b17e7c615/r) |
+| memory / automatic-correction | answered | [Open trace](https://smith.langchain.com/public/2021d3a0-8e21-443c-9c83-14af6ae5a24d/r) |
+| memory / cross-user-isolation | abstained | [Open trace](https://smith.langchain.com/public/f79e732c-9e16-454a-a7b8-fe9fee12fb5e/r) |
+| memory / forget-command | memory | [Open trace](https://smith.langchain.com/public/d45905e8-7c81-477a-add7-ff79d862fc9b/r) |
+| memory / forget-no-resurrection-after-restart | abstained | [Open trace](https://smith.langchain.com/public/63b50426-ce60-498e-9f18-2b1027e6588d/r) |
+| research-before-fix / cold-conflict | abstained | [Open trace](https://smith.langchain.com/public/2d610436-d6f2-4325-8c9d-5941d28dc8a4/r) |
+| research-before-fix / stipend-conflict | abstained | [Open trace](https://smith.langchain.com/public/c28b4ade-3ef5-471c-a834-f0986a329d71/r) |
