@@ -9,6 +9,8 @@ def test_ui_loads_without_credentials_and_switches_user_context(tmp_path, monkey
     monkeypatch.setenv("RUNTIME_DIR", str(tmp_path))
     monkeypatch.setenv("OPENAI_API_KEY", "")
     monkeypatch.setenv("LANGSMITH_TRACING", "false")
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("GENERATION_PROVIDER", "openai")
     store = MemoryStore(tmp_path / "memory.sqlite3")
     store.save("alice", "workspace_plan", "Team")
     app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py")).run(timeout=15)
@@ -19,3 +21,6 @@ def test_ui_loads_without_credentials_and_switches_user_context(tmp_path, monkey
     assert not app.exception
     assert any("Nothing remembered" in x.value for x in app.info)
     assert not any("Team" == x.value for x in app.markdown)
+    app.chat_input[0].set_value("What workspace plan do I use?").run()
+    assert not app.exception
+    assert any("Which plan do you use" in x.value for x in app.markdown)

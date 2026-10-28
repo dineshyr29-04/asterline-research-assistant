@@ -14,13 +14,13 @@ def test_rate_limit_respects_bounded_retry_after():
             return httpx.Response(429, headers={"Retry-After": "1000"})
         return httpx.Response(200, json={"choices": [{"message": {"content": '{"ok":true}'}}]})
 
-    provider = GenerationProvider(Settings(api_key="synthetic-test-key"), httpx.MockTransport(handler), sleeps.append)
+    provider = GenerationProvider(Settings(provider="openai", api_key="synthetic-test-key"), httpx.MockTransport(handler), sleeps.append)
     assert provider.complete("test", "JSON only", {}) == {"ok": True}
     assert len(attempts) == 2 and sleeps == [60]
 
 
 def test_exhausted_provider_does_not_expose_response_body():
-    provider = GenerationProvider(Settings(api_key="synthetic-test-key", retries=1),
+    provider = GenerationProvider(Settings(provider="openai", api_key="synthetic-test-key", retries=1),
                                   httpx.MockTransport(lambda req: httpx.Response(503, text="secret payload")), lambda _: None)
     with pytest.raises(ProviderError) as exc:
         provider.complete("test", "JSON only", {})
@@ -34,7 +34,7 @@ def test_auth_failure_is_not_retried():
         calls.append(1)
         return httpx.Response(401, text="raw api_key=should-not-leak")
 
-    provider = GenerationProvider(Settings(api_key="synthetic-test-key"), httpx.MockTransport(handler))
+    provider = GenerationProvider(Settings(provider="openai", api_key="synthetic-test-key"), httpx.MockTransport(handler))
     with pytest.raises(ProviderError, match="HTTP 401"):
         provider.complete("test", "JSON", {})
     assert len(calls) == 1
@@ -46,7 +46,7 @@ def test_invalid_json_and_missing_credentials():
     with pytest.raises(ProviderError):
         parse_json("[]")
     with pytest.raises(ProviderError, match="OPENAI_API_KEY"):
-        GenerationProvider(Settings()).complete("test", "JSON", {})
+        GenerationProvider(Settings(provider="openai")).complete("test", "JSON", {})
 
 
 def test_ollama_json_protocol():
@@ -66,7 +66,7 @@ def test_disconnected_provider_is_retried_and_returns_safe_error():
         calls.append(1)
         raise httpx.RemoteProtocolError("Synthetic upstream disconnect")
 
-    provider = GenerationProvider(Settings(api_key="synthetic-test-key", retries=1),
+    provider = GenerationProvider(Settings(provider="openai", api_key="synthetic-test-key", retries=1),
                                   httpx.MockTransport(handler), lambda _: None)
     with pytest.raises(ProviderError, match="unreachable"):
         provider.complete("test", "JSON", {})

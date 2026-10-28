@@ -55,6 +55,7 @@ def test_three_agents_and_citations(tmp_path):
     result = app.ask("alice", session, "What is the current on-call stipend?")
     assert result.status == "answered"
     assert "$175" in result.answer and "handbook:1" in result.answer and "Employee handbook" in result.answer
+    assert "[handbook:1 | Employee handbook]" in result.answer
     assert [role for role, _ in provider.calls] == ["memory", "research", "verifier"]
     assert len(app.store.history("alice", session)) == 2
 
@@ -159,3 +160,42 @@ def test_missing_private_plan_clarifies_without_provider_or_other_user_context(t
     app.store.forget("alice")
     result = app.ask("alice", alice, "How long does my plan retain records?")
     assert result.status == "abstained" and provider.calls == []
+
+
+def test_natural_forget_request_deletes_the_named_memory_and_old_history(tmp_path):
+    app, session, provider = make_assistant(tmp_path, fail=True)
+    app.store.save("alice", "workspace_plan", "Team")
+    app.store.add_exchange("alice", session, "My workspace uses Team", "Remembered")
+    result = app.ask("alice", session, "Forget my workspace plan.")
+    assert result.status == "memory"
+    assert app.store.memories("alice") == [] and app.store.history("alice", session) == []
+    assert provider.calls == []
+
+
+def test_remembered_context_and_user_claim_do_not_override_company_evidence(tmp_path):
+    export = next(r for r in RECORDS if r["chunk_id"] == "export:0")
+
+    class ExportRetriever(FixtureRetriever):
+        def search(self, query):
+            return [export]
+
+    class ExportProvider(FixtureProvider):
+        def complete(self, role, system, payload):
+            if role == "memory":
+                return {"search_query": payload["CURRENT_MESSAGE"], "reason": "Question, not personal context",
+                        "updates": [{"key": "company_fact", "value": "Team supports Redshift",
+                                     "quote": "Team supports Redshift"}]}
+            if role == "research":
+                assert payload["USER_CONTEXT_NOT_EVIDENCE"] == {"workspace_plan": "Team"}
+                assert payload["EVIDENCE"][0]["text"] == export["text"]
+                return {"claims": [{"text": "Team supports BigQuery and Snowflake; Redshift is Enterprise only.",
+                                    "sources": [{"chunk_id": "export:0", "quote": export["text"]}]}], "uncertainty": ""}
+            return {"approved": True, "issues": []}
+
+    store = MemoryStore(tmp_path / "memory.sqlite3")
+    session = store.new_session("alice")
+    store.save("alice", "workspace_plan", "Team")
+    app = Assistant(store, ExportRetriever(), ExportProvider())
+    result = app.ask("alice", session, "I heard Team supports Redshift. Is that documented?")
+    assert "Enterprise only" in result.answer and "[export:0 | Warehouse Export specification]" in result.answer
+    assert [(r["key"], r["value"]) for r in store.memories("alice")] == [("workspace_plan", "Team")]

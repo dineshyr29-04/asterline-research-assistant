@@ -35,14 +35,7 @@ def clear_user_results(user):
             del st.session_state.results[key]
 
 
-def main():
-    settings = Settings.from_env()
-    store = MemoryStore(settings.runtime_dir / "memory.sqlite3")
-    corpus = load_corpus(settings.corpus_path)
-    tracer = Tracer(settings.tracing)
-    assistant = Assistant(store, LazyRetriever(settings), GenerationProvider(settings), tracer)
-    st.session_state.setdefault("results", {})
-
+def render_sidebar(settings, store, tracer):
     with st.sidebar:
         st.title("✦ Asterline")
         st.caption("RESEARCH WORKSPACE")
@@ -98,6 +91,95 @@ def main():
             st.caption("LangSmith tracing enabled. Shared runs must contain synthetic data only.")
         else:
             st.caption("LangSmith tracing off" + (" — API key missing" if settings.tracing else ""))
+    return user, session, remember
+
+
+def render_conversation(store, assistant, user, session, remember):
+    history = store.history(user, session, limit=100)
+    if not history:
+        st.info("Try: What is the current on-call stipend? Why do the documents give different figures?")
+        st.caption("Other examples: Team record vs Explorer retention · AQL limits in v2.2 vs v2.3 · "
+                   "Why did Warehouse Export create duplicates?")
+    for message in history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+    result = st.session_state.results.get((user, session))
+    if result:
+        if not history or history[-1]["content"] != result.answer:
+            with st.chat_message("assistant"):
+                st.markdown(result.answer)
+        if result.saved_memory:
+            st.caption("Remembered: " + ", ".join(result.saved_memory))
+        if result.decisions:
+            with st.expander("Agent decisions · latest question"):
+                st.json(result.decisions)
+        if result.trace_id:
+            st.caption("LangSmith trace ID: " + result.trace_id)
+        if result.evidence:
+            with st.expander("Evidence passages · latest question"):
+                for source in result.evidence:
+                    st.markdown(f"**{source['chunk_id']} · {source['title']}**")
+                    st.caption(f"Published {source['published']} · v{source['version']} · {source['source_url']}")
+                    st.write(source["text"])
+    question = st.chat_input("Ask about Asterline, or use /remember, /correct, /forget")
+    if question:
+        from src.agents import Result
+        try:
+            with st.spinner("Resolving context → retrieving evidence → researching → verifying…"):
+                answer = assistant.ask(user, session, question, remember=remember)
+            if answer.status == "memory" or answer.saved_memory:
+                clear_user_results(user)
+            st.session_state.results[(user, session)] = answer
+        except (ProviderError, ValueError) as exc:
+            st.session_state.results[(user, session)] = Result(str(exc), status="error")
+        except Exception:
+            # Never expose raw SDK/provider exceptions which may contain credentials or user payloads.
+            st.session_state.results[(user, session)] = Result(
+                "A local retrieval or storage operation failed. Check write access, available disk space and "
+                "embedding model download connectivity, then restart. No unverified answer was saved.", status="error")
+        st.rerun()
+
+
+def render_sources(corpus):
+    search = st.text_input("Filter source text or title", placeholder="retention, stipend, INC-2026-03…")
+    for source in corpus:
+        if search.lower() in (source["title"] + " " + source["text"] + " " + source["chunk_id"]).lower():
+            with st.expander(source["chunk_id"] + " · " + source["title"]):
+                st.caption(f"{source['category']} · {source['published']} · version {source['version']}")
+                st.write(source["text"])
+                st.code(source["source_url"])
+
+
+def render_help():
+            st.markdown("""
+    1. **Memory agent** resolves follow-ups and selectively proposes user context.
+    2. **Research agent** answers from local retrieval, with exact evidence quotations.
+    3. **Verifier agent** checks support, scope and conflicts. It can reject a draft and request one revision.
+
+    Company documentation is the authority. User memory and past answers cannot establish company facts.
+
+    **Commands:** `/remember workspace_plan=Team`, `/correct workspace_plan=Enterprise`,
+    `/forget workspace_plan`, `/forget all`.
+
+    Use synthetic users only. A user selector demonstrates storage isolation; anyone with access to this local
+    application can select another demo identity. Production authentication is outside this assignment's scope.
+
+    Local embeddings need a one-time model download. Generation uses your configured API or Ollama;
+    hosted generation may cost money. LangSmith tracing is opt-in and sends redacted synthetic run data
+    to your configured LangSmith project. Forgetting clears local context, not previously exported traces;
+    manage shared traces separately in LangSmith.
+    """)
+
+
+def main():
+    settings = Settings.from_env()
+    store = MemoryStore(settings.runtime_dir / "memory.sqlite3")
+    corpus = load_corpus(settings.corpus_path)
+    tracer = Tracer(settings.tracing)
+    assistant = Assistant(store, LazyRetriever(settings), GenerationProvider(settings), tracer)
+    st.session_state.setdefault("results", {})
+
+    user, session, remember = render_sidebar(settings, store, tracer)
 
     st.title("Research that remembers")
     st.markdown("Trustworthy answers from company documentation, with context you control.")
@@ -110,76 +192,11 @@ def main():
         st.warning(problem + " You can browse sources and manage memory now. Configure .env and restart to ask research questions.")
     chat_tab, sources_tab, help_tab = st.tabs(["Conversation", "Knowledge base", "How it works"])
     with chat_tab:
-        history = store.history(user, session, limit=100)
-        if not history:
-            st.info("Try: What is the current on-call stipend? Why do the documents give different figures?")
-            st.caption("Other examples: Team record vs Explorer retention · AQL limits in v2.2 vs v2.3 · "
-                       "Why did Warehouse Export create duplicates?")
-        for message in history:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-        result = st.session_state.results.get((user, session))
-        if result:
-            if result.status in {"memory", "blocked", "verification_failed", "error"}:
-                with st.chat_message("assistant"):
-                    st.markdown(result.answer)
-            if result.saved_memory:
-                st.caption("Remembered: " + ", ".join(result.saved_memory))
-            if result.decisions:
-                with st.expander("Agent decisions · latest question"):
-                    st.json(result.decisions)
-            if result.trace_id:
-                st.caption("LangSmith trace ID: " + result.trace_id)
-            if result.evidence:
-                with st.expander("Evidence passages · latest question"):
-                    for source in result.evidence:
-                        st.markdown(f"**{source['chunk_id']} · {source['title']}**")
-                        st.caption(f"Published {source['published']} · v{source['version']} · {source['source_url']}")
-                        st.write(source["text"])
-        question = st.chat_input("Ask about Asterline, or use /remember, /correct, /forget")
-        if question:
-            from src.agents import Result
-            try:
-                with st.spinner("Resolving context → retrieving evidence → researching → verifying…"):
-                    answer = assistant.ask(user, session, question, remember=remember)
-                if answer.status == "memory" or answer.saved_memory:
-                    clear_user_results(user)
-                st.session_state.results[(user, session)] = answer
-            except (ProviderError, ValueError) as exc:
-                st.session_state.results[(user, session)] = Result(str(exc), status="error")
-            except Exception:
-                # Never expose raw SDK/provider exceptions which may contain credentials or user payloads.
-                st.session_state.results[(user, session)] = Result(
-                    "A local retrieval or storage operation failed. Check write access, available disk space and "
-                    "embedding model download connectivity, then restart. No unverified answer was saved.", status="error")
-            st.rerun()
+        render_conversation(store, assistant, user, session, remember)
     with sources_tab:
-        search = st.text_input("Filter source text or title", placeholder="retention, stipend, INC-2026-03…")
-        for source in corpus:
-            if search.lower() in (source["title"] + " " + source["text"] + " " + source["chunk_id"]).lower():
-                with st.expander(source["chunk_id"] + " · " + source["title"]):
-                    st.caption(f"{source['category']} · {source['published']} · version {source['version']}")
-                    st.write(source["text"])
-                    st.code(source["source_url"])
+        render_sources(corpus)
     with help_tab:
-        st.markdown("""
-1. **Memory agent** resolves follow-ups and selectively proposes user context.
-2. **Research agent** answers from local retrieval, with exact evidence quotations.
-3. **Verifier agent** checks support, scope and conflicts. It can reject a draft and request one revision.
-
-Company documentation is the authority. User memory and past answers cannot establish company facts.
-
-**Commands:** `/remember workspace_plan=Team`, `/correct workspace_plan=Enterprise`,
-`/forget workspace_plan`, `/forget all`.
-
-Use synthetic users only. A user selector demonstrates storage isolation; anyone with access to this local
-application can select another demo identity. Production authentication is outside this assignment's scope.
-
-Local embeddings need a one-time model download. Generation uses your configured API or Ollama;
-hosted generation may cost money. LangSmith tracing is opt-in and sends redacted synthetic run data
-to your configured LangSmith project. Forgetting clears local context, not previously exported traces;
-manage shared traces separately in LangSmith.
-""")
+        render_help()
 
 
 if __name__ == "__main__":

@@ -8,6 +8,9 @@ from src.privacy import contains_secret, safe_memory, SENSITIVE
 from src.provider import ProviderError
 from src.tracing import Tracer, user_tag
 
+MAX_MESSAGE_LENGTH = 6000
+MAX_DRAFT_ATTEMPTS = 2  # First draft plus one verifier-directed revision.
+
 MEMORY_PROMPT = """You are the Memory and Context agent. Return only a JSON object with three fields:
 search_query (the ACTUAL resolved user question), updates (a list), and reason (your actual brief decision).
 For a standalone question, copy CURRENT_MESSAGE into search_query verbatim. For a follow-up, resolve its references.
@@ -68,6 +71,7 @@ class Result:
 
 
 class MemoryAgent:
+    """Resolve follow-ups and propose only source-backed personal-context updates."""
     def __init__(self, provider):
         self.provider = provider
 
@@ -161,11 +165,12 @@ def validate_draft(draft, evidence):
 
 
 def render_draft(draft, evidence):
+    """Format verified statements with human-readable [chunk_id | title] citations."""
     by_id = {r["chunk_id"]: r for r in evidence}
     paragraphs = []
     for claim in draft["claims"]:
         citations = list(dict.fromkeys(s["chunk_id"] for s in claim["sources"]))
-        refs = "; ".join(f"{cid} — {by_id[cid]['title']}" for cid in citations)
+        refs = " ".join(f"[{cid} | {by_id[cid]['title']}]" for cid in citations)
         paragraphs.append(f"{claim['text']}\n\n**Sources:** {refs}")
     if draft.get("uncertainty"):
         paragraphs.append("**Uncertainty / clarification:** " + draft["uncertainty"])
@@ -173,6 +178,7 @@ def render_draft(draft, evidence):
 
 
 class Assistant:
+    """Explicit sequential workflow; no framework, factories or hidden graph state."""
     def __init__(self, store, retriever, provider, tracer=None):
         self.store, self.retriever, self.provider = store, retriever, provider
         self.memory_agent = MemoryAgent(provider)
@@ -184,8 +190,12 @@ class Assistant:
             self.store.forget(user_id)
             return Result("All your memories and conversation history have been deleted locally.", status="memory")
         forget = re.fullmatch(r"/forget\s+(\w+)", question.strip(), re.I)
-        if forget:
-            self.store.forget(user_id, forget[1])
+        natural_forget = re.fullmatch(r"(?:please\s+)?forget\s+(?:my|our|the)\s+(.+?)[.!]?", lowered)
+        aliases = {"workspace plan": "workspace_plan", "plan": "workspace_plan", "project region": "project_region",
+                   "project name": "project_name", "response style": "response_style", "work goal": "work_goal"}
+        natural_key = aliases.get(natural_forget[1]) if natural_forget else None
+        if forget or natural_key:
+            self.store.forget(user_id, forget[1] if forget else natural_key)
             return Result("That memory and your old conversation history have been deleted locally.", status="memory")
         if lowered.startswith("forget ") or lowered.startswith("/forget"):
             return Result("Use /forget all or /forget KEY. You can also delete a memory in the sidebar. "
@@ -200,28 +210,8 @@ class Assistant:
                           "Available keys: " + ", ".join(sorted(MEMORY_KEYS)), status="memory")
         return None
 
-    def ask(self, user_id, session_id, question, remember=True):
-        question = question.strip()
-        if not question or len(question) > 6000:
-            raise ValueError("Enter a message between 1 and 6000 characters")
-        # Ownership and privacy checks precede both model calls and tracing.
-        history = self.store.history(user_id, session_id)
-        if contains_secret(question):
-            return Result("This looks like it contains a credential. Remove it and rotate any exposed key. "
-                          "This message was not sent to a model, traced or saved.", status="blocked")
-        if SENSITIVE.search(question):
-            return Result("Please leave sensitive personal or medical details out of this company research tool. "
-                          "This message was not sent to a model, traced or saved.", status="blocked")
-        command = self._command(user_id, question)
-        if command:
-            # Export decisions only; never re-upload forgotten context or memory values.
-            with self.tracer.span("asterline.memory_control", {"operation": question.split()[0].lower()},
-                                  {"user": user_tag(user_id)}) as span:
-                span.outputs = {"status": command.status, "saved_keys": list(command.saved_memory),
-                                "remaining_keys": [r["key"] for r in self.store.memories(user_id)]}
-                command.trace_id = span.trace_id
-            return command
-        memories = {r["key"]: r["value"] for r in self.store.memories(user_id)}
+    def _clarify_missing_plan(self, user_id, session_id, question, memories, history):
+        """Ask locally when the employee's plan is unknown instead of guessing from the KB."""
         personal_plan = bool(re.search(r"\b(?:my|our)\s+(?:workspace\s+)?plan\b|\b(?:what|which)\s+(?:workspace\s+)?plan\b.*\b(?:i|we)\b",
                                        question, re.I))
         plan_hints = question + " " + " ".join(m["content"] for m in history if m["role"] == "user")
@@ -237,6 +227,69 @@ class Assistant:
                 root.outputs = {"status": "abstained", "answer": answer}
                 return Result(answer, decisions=[{"agent": "Memory", "decision": "clarify_missing_private_context"}],
                               trace_id=root.trace_id, status="abstained")
+        return None
+
+    def _retrieve(self, query):
+        with self.tracer.span("tool.retrieve", {"query": query, "mode": self.retriever.mode}) as span:
+            evidence = self.retriever.expand_scope(self.retriever.search(query))
+            span.outputs = {"chunks": [r["chunk_id"] for r in evidence],
+                            "dates": {r["chunk_id"]: r["published"] for r in evidence}}
+        return evidence
+
+    def _research_and_verify(self, question, query, effective_memory, evidence, decisions):
+        """Research drafts claims; deterministic checks and the Verifier can request one repair."""
+        evidence_payload = [{k: r[k] for k in ("chunk_id", "title", "category", "published", "version", "text")}
+                            for r in evidence]
+        payload = {"QUESTION": question, "RESOLVED_QUESTION": query,
+                   "USER_CONTEXT_NOT_EVIDENCE": effective_memory, "EVIDENCE": evidence_payload}
+        for attempt in range(MAX_DRAFT_ATTEMPTS):
+            with self.tracer.span("agent.research", {"query": query, "attempt": attempt + 1,
+                                                   "evidence_ids": [r["chunk_id"] for r in evidence]}) as span:
+                draft = self.provider.complete("research", RESEARCH_PROMPT, payload)
+                structural_issues = validate_draft(draft, evidence)
+                span.outputs = {"draft": draft, "structural_issues": structural_issues}
+            with self.tracer.span("agent.verifier", {"draft": draft, "structural_issues": structural_issues}) as span:
+                if structural_issues:
+                    review = {"approved": False, "issues": structural_issues}
+                else:
+                    review = self.provider.complete("verifier", VERIFY_PROMPT,
+                                                    {**payload, "DRAFT": draft})
+                approved = review.get("approved") is True and not structural_issues
+                issues = review.get("issues", [])
+                if not isinstance(issues, list) or (approved and issues):
+                    approved, issues = False, ["Verifier returned an inconsistent review"]
+                span.outputs = {"approved": approved, "issues": issues}
+                decisions.append({"agent": "Research + Verifier", "attempt": attempt + 1, **span.outputs})
+            if approved:
+                return draft
+            payload["REVIEW_FEEDBACK"] = issues
+            payload["PREVIOUS_DRAFT"] = draft
+        return None
+
+    def ask(self, user_id, session_id, question, remember=True):
+        """Validate -> memory/context -> retrieve -> draft/review -> persist only accepted output."""
+        question = question.strip()
+        if not question or len(question) > MAX_MESSAGE_LENGTH:
+            raise ValueError(f"Enter a message between 1 and {MAX_MESSAGE_LENGTH} characters")
+        history = self.store.history(user_id, session_id)  # Also validates session ownership.
+        if contains_secret(question):
+            return Result("This looks like it contains a credential. Remove it and rotate any exposed key. "
+                          "This message was not sent to a model, traced or saved.", status="blocked")
+        if SENSITIVE.search(question):
+            return Result("Please leave sensitive personal or medical details out of this company research tool. "
+                          "This message was not sent to a model, traced or saved.", status="blocked")
+        command = self._command(user_id, question)
+        if command:
+            with self.tracer.span("asterline.memory_control", {"operation": question.split()[0].lower()},
+                                  {"user": user_tag(user_id)}) as span:
+                span.outputs = {"status": command.status, "saved_keys": list(command.saved_memory),
+                                "remaining_keys": [r["key"] for r in self.store.memories(user_id)]}
+                command.trace_id = span.trace_id
+            return command
+        memories = {r["key"]: r["value"] for r in self.store.memories(user_id)}
+        clarification = self._clarify_missing_plan(user_id, session_id, question, memories, history)
+        if clarification:
+            return clarification
         decisions = []
         with self.tracer.span("asterline.conversation", {"question": question},
                               {"user": user_tag(user_id), "session": session_id}) as root:
@@ -245,40 +298,8 @@ class Assistant:
                 query, updates, reason = self.memory_agent.plan(question, memories, history, remember)
                 span.outputs = {"search_query": query, "proposed_keys": list(updates), "reason": reason}
                 decisions.append({"agent": "Memory", **span.outputs})
-            effective_memory = {**memories, **updates}
-            with self.tracer.span("tool.retrieve", {"query": query, "mode": self.retriever.mode}) as span:
-                evidence = self.retriever.expand_scope(self.retriever.search(query))
-                span.outputs = {"chunks": [r["chunk_id"] for r in evidence],
-                                "dates": {r["chunk_id"]: r["published"] for r in evidence}}
-            # Keep evidence and authority metadata; repeated owner/URL fields need not consume model quota.
-            evidence_payload = [{k: r[k] for k in ("chunk_id", "title", "category", "published", "version", "text")}
-                                for r in evidence]
-            payload = {"QUESTION": question, "RESOLVED_QUESTION": query,
-                       "USER_CONTEXT_NOT_EVIDENCE": effective_memory, "EVIDENCE": evidence_payload}
-            accepted = None
-            for attempt in range(2):
-                with self.tracer.span("agent.research", {"query": query, "attempt": attempt + 1,
-                                                       "evidence_ids": [r["chunk_id"] for r in evidence]}) as span:
-                    draft = self.provider.complete("research", RESEARCH_PROMPT, payload)
-                    structural_issues = validate_draft(draft, evidence)
-                    span.outputs = {"draft": draft, "structural_issues": structural_issues}
-                with self.tracer.span("agent.verifier", {"draft": draft, "structural_issues": structural_issues}) as span:
-                    if structural_issues:
-                        review = {"approved": False, "issues": structural_issues}
-                    else:
-                        review = self.provider.complete("verifier", VERIFY_PROMPT,
-                                                        {**payload, "DRAFT": draft})
-                    approved = review.get("approved") is True and not structural_issues
-                    issues = review.get("issues", [])
-                    if not isinstance(issues, list) or (approved and issues):
-                        approved, issues = False, ["Verifier returned an inconsistent review"]
-                    span.outputs = {"approved": approved, "issues": issues}
-                    decisions.append({"agent": "Research + Verifier", "attempt": attempt + 1, **span.outputs})
-                if approved:
-                    accepted = draft
-                    break
-                payload["REVIEW_FEEDBACK"] = issues
-                payload["PREVIOUS_DRAFT"] = draft
+            evidence = self._retrieve(query)
+            accepted = self._research_and_verify(question, query, {**memories, **updates}, evidence, decisions)
             if accepted is None:
                 root.outputs = {"status": "verification_failed", "decisions": decisions}
                 return Result("I could not verify a reliable answer after one revision. Please narrow the question "
