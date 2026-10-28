@@ -63,7 +63,7 @@ def live_metrics(retriever, cases, settings, checkpoint=None, previous=None):
             except (ProviderError, ValueError) as exc:
                 rows.append({"id": case["id"], "status": "error", "error": str(exc),
                              "trace_id": assistant.tracer.last_trace_id})
-            print(f"Live research {len(rows)}/{len(cases)}: {case['id']} -> {rows[-1]['status']}", flush=True)
+            print(f"Live research: {case['id']} -> {rows[-1]['status']} ({len(rows)} results saved)", flush=True)
             if checkpoint:
                 checkpoint(generation_report(rows, settings))
     return generation_report(rows, settings)
@@ -82,6 +82,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--resume", action="store_true", help="Keep completed cases; retry provider errors from the output file")
+    parser.add_argument("--case", action="append", default=[], help="Rerun a specific case ID while retaining other saved results with --resume")
     parser.add_argument("--limit", type=int, default=0, help="Optional live-case limit for provider cost control")
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--output", type=Path, default=ROOT / "evaluation/results.json")
@@ -103,8 +104,11 @@ def main():
             result["generation"] = generation
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
-        result["generation"] = live_metrics(retriever, cases[:args.limit] if args.limit else cases, settings,
-                                            checkpoint, previous.get("generation", {}).get("cases"))
+        selected = [c for c in cases if c["id"] in args.case] if args.case else cases[:args.limit] if args.limit else cases
+        if args.case and len(selected) != len(set(args.case)):
+            parser.error("Unknown case ID")
+        previous_rows = [r for r in previous.get("generation", {}).get("cases", []) if r["id"] not in args.case]
+        result["generation"] = live_metrics(retriever, selected, settings, checkpoint, previous_rows)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2), encoding="utf-8")
     for name in ("baseline", "lexical_only_change", "improved"):

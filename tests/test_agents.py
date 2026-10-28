@@ -139,3 +139,11 @@ def test_memory_agent_cannot_replace_question_with_schema_placeholder():
     question = "What is the current weekly on-call stipend?"
     query, updates, reason = MemoryAgent(PlaceholderProvider()).plan(question, {}, [], False)
     assert query == question and updates == {} and "Rejected" in reason
+
+
+def test_only_typographic_quote_changes_are_canonicalized():
+    from src.agents import source_quote
+    text = "Affected customers received a cleanup script for pre-existing duplicates."
+    assert source_quote("cleanup script for pre\u2011existing duplicates.", text) == "cleanup script for pre-existing duplicates."
+    assert source_quote("cleanup script for existing duplicates.", text) is None
+    assert source_quote("cleanup script removed all duplicates.", text) is None
